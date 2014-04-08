@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="libtabun" default="jar">
+    <property file="build.properties"/>
+
+    <target name="clean">
+        <delete dir="${build.dir}"/>
+    </target>
+
+    <target name="build" depends="clean">
+
+        <mkdir dir="${build.dir}"/>
+
+        <javac
+                executable="${jdk.bin}"
+                srcdir="${src.dir}"
+                destdir="${build.dir}"
+                >
+
+            <include name="**/*.java"/>
+            <exclude name="**/example/*"/>
+
+            <classpath>
+                <fileset dir="${lib.dir}"/>
+            </classpath>
+        </javac>
+
+    </target>
+
+    <target name="jar-lib" depends="build">
+        <jar destfile="libtabun-bin.jar" basedir="${build.dir}"/>
+    </target>
+
+    <target name="jar-sources">
+        <jar destfile="libtabun-sources.jar" basedir="${src.dir}">
+            <exclude name="**/example/*"/>
+        </jar>
+    </target>
+
+    <target name="jar" depends="jar-lib, jar-sources">
+    </target>
+
+</project>
