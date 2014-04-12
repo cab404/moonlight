@@ -1,6 +1,6 @@
 package com.cab404.moonlight.util;
 
-import com.cab404.moonlight.util.modular.AccessProfile;
+import com.cab404.moonlight.framework.AccessProfile;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpRequestBase;

@@ -2,7 +2,7 @@ package com.cab404.moonlight.tests;
 
 import com.cab404.moonlight.util.SU;
 import com.cab404.moonlight.util.U;
-import com.cab404.moonlight.util.modular.AccessProfile;
+import com.cab404.moonlight.framework.AccessProfile;
 
 import java.util.List;
 

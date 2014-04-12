@@ -1,6 +1,6 @@
 package com.cab404.moonlight.tests;
 
-import com.cab404.moonlight.util.modular.AccessProfile;
+import com.cab404.moonlight.framework.AccessProfile;
 
 /**
  * @author cab404

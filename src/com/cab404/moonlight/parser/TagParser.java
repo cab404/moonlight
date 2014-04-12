@@ -1,7 +1,7 @@
-package com.cab404.moonlight.util.html_parser;
+package com.cab404.moonlight.parser;
 
 import com.cab404.moonlight.util.SU;
-import com.cab404.moonlight.util.html_parser.Tag.Type;
+import com.cab404.moonlight.parser.Tag.Type;
 
 import java.util.List;
 

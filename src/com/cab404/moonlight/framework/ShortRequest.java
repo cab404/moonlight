@@ -1,7 +1,6 @@
-package com.cab404.moonlight.util.loaders;
+package com.cab404.moonlight.framework;
 
 import com.cab404.moonlight.facility.ResponseFactory;
-import com.cab404.moonlight.util.modular.AccessProfile;
 
 /**
  * Реквест на какую-нибудь мелочь, которая не требует параллельного парсинга.

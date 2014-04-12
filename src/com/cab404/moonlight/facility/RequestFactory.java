@@ -1,6 +1,6 @@
 package com.cab404.moonlight.facility;
 
-import com.cab404.moonlight.util.modular.AccessProfile;
+import com.cab404.moonlight.framework.AccessProfile;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.HttpGet;

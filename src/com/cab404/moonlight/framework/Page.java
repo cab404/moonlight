@@ -1,13 +1,11 @@
-package com.cab404.moonlight.util.loaders;
+package com.cab404.moonlight.framework;
 
 import com.cab404.moonlight.facility.RequestFactory;
 import com.cab404.moonlight.facility.ResponseFactory;
-import com.cab404.moonlight.util.html_parser.HTMLAnalyzerThread;
-import com.cab404.moonlight.util.html_parser.HTMLTagParserThread;
-import com.cab404.moonlight.util.html_parser.LevelAnalyzer;
-import com.cab404.moonlight.util.html_parser.TagParser;
-import com.cab404.moonlight.util.modular.AccessProfile;
-import com.cab404.moonlight.util.modular.ModularBlockParser;
+import com.cab404.moonlight.parser.HTMLAnalyzerThread;
+import com.cab404.moonlight.parser.HTMLTagParserThread;
+import com.cab404.moonlight.parser.LevelAnalyzer;
+import com.cab404.moonlight.parser.TagParser;
 import org.apache.http.client.methods.HttpRequestBase;
 
 /**

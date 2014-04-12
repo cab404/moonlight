@@ -1,9 +1,8 @@
-package com.cab404.moonlight.util.loaders;
+package com.cab404.moonlight.framework;
 
 import com.cab404.moonlight.facility.ResponseFactory;
 import com.cab404.moonlight.util.RU;
 import com.cab404.moonlight.util.U;
-import com.cab404.moonlight.util.modular.AccessProfile;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.client.methods.HttpRequestBase;

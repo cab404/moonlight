@@ -1,4 +1,4 @@
-package com.cab404.moonlight.util.modular;
+package com.cab404.moonlight.framework;
 
 import com.cab404.moonlight.util.SU;
 import com.cab404.moonlight.util.U;

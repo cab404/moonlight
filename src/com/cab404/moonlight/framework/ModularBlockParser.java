@@ -1,6 +1,6 @@
-package com.cab404.moonlight.util.modular;
+package com.cab404.moonlight.framework;
 
-import com.cab404.moonlight.util.html_parser.LevelAnalyzer;
+import com.cab404.moonlight.parser.LevelAnalyzer;
 
 import java.util.HashMap;
 import java.util.Iterator;

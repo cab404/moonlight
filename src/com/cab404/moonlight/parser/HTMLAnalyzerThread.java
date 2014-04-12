@@ -1,4 +1,4 @@
-package com.cab404.moonlight.util.html_parser;
+package com.cab404.moonlight.parser;
 
 import java.util.concurrent.CopyOnWriteArrayList;
 
