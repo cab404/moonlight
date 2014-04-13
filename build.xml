@@ -13,12 +13,13 @@
 
         <javac
                 executable="${jdk.bin}"
-                srcdir="${src.dir}"
                 destdir="${build.dir}"
+                srcdir="${src.dir}"
                 >
 
             <include name="**/*.java"/>
-            <exclude name="**/example/*"/>
+            <exclude name="**/example/*.java"/>
+            <exclude name="**/libtabun/tests/*.java"/>
 
             <classpath>
                 <fileset dir="${lib.dir}"/>
@@ -33,7 +34,9 @@
 
     <target name="jar-sources">
         <jar destfile="libtabun-sources.jar" basedir="${src.dir}">
-            <exclude name="**/example/*"/>
+            <include name="**/*.java"/>
+            <exclude name="**/example/*.java"/>
+            <exclude name="**/tests/*.java"/>
         </jar>
     </target>
 

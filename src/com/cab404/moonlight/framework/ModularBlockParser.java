@@ -34,16 +34,12 @@ public class ModularBlockParser implements LevelAnalyzer.BlockHandler {
             final int response_id = e.getValue();
 
             if (module.doYouLikeIt(builder.getHeaderTag())) {
-//                new Thread(response_id + " parser") {
-//                    @Override public void run() {
                 Object object = module.extractData(builder.assembleTree(), profile);
-                if (object == null) return;
-                object_handler.handle(
-                        object,
-                        response_id
-                );
-//                    }
-//                }.start();
+                if (object != null)
+                    object_handler.handle(
+                            object,
+                            response_id
+                    );
             }
 
             if (module.haveYouFinished())

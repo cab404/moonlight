@@ -6,7 +6,6 @@ import java.util.*;
 
 /**
  * Довольно простой эвристический анализатор ошибок HTML.
- * Не любит работать с субдеревьями, ибо использует индексы прямо из тегов.
  */
 public class LevelAnalyzer {
     private List<LeveledTag> tags;
@@ -25,8 +24,6 @@ public class LevelAnalyzer {
 
         if (tag.isClosing()) {
             LeveledTag opening = findOpening(tag.index);
-            fixLyingLoners(opening.tag.index, tags.size());
-            fixIndents(opening.tag.index, tags.size());
 
             if (handler != null) {
                 BlockBuilder blockBuilder = new BlockBuilder();
