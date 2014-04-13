@@ -46,7 +46,7 @@ public class Tag {
     }
 
     public String get(String property) {
-        return props.containsKey(property) ? props.get(property) : null;
+        return props.containsKey(property) ? props.get(property) : "";
     }
 
     @Override public String toString() {

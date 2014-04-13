@@ -191,7 +191,6 @@ public class HTMLTree implements Iterable<Tag> {
                             .append('\n');
             }
             out
-                    .append(getLevel(tag) - shift)
                     .append(SU.tabs(getLevel(tag) - shift))
                     .append(tag)
                     .append("\n");
