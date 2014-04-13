@@ -1,12 +1,13 @@
 package com.cab404.moonlight.parser;
 
-import com.cab404.moonlight.util.SU;
 import com.cab404.moonlight.parser.Tag.Type;
+import com.cab404.moonlight.util.SU;
 
 import java.util.List;
 
 /**
  * +20% cooler; +4k% faster;
+ * Парсит теги из того, что ему дают. И больше ничего.
  *
  * @author cab404
  */

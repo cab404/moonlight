@@ -2,7 +2,8 @@ package com.cab404.moonlight.framework;
 
 import com.cab404.moonlight.parser.LevelAnalyzer;
 
-import java.util.HashMap;
+import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -11,21 +12,26 @@ import java.util.Map;
  */
 public class ModularBlockParser implements LevelAnalyzer.BlockHandler {
     private AccessProfile profile;
-    private HashMap<Module, Integer> handlers;
+    private ArrayList<Map.Entry<Module, Integer>> handlers;
     private ParsedObjectHandler object_handler;
 
     public ModularBlockParser(ParsedObjectHandler handler, AccessProfile profile) {
         this.object_handler = handler;
-        handlers = new HashMap<>();
+        handlers = new ArrayList<>();
         this.profile = profile;
     }
 
+    /**
+     * Binds new parsing module.
+     *
+     * @param id ID which will be used while returning object to handler.
+     */
     public void bind(Module module, int id) {
-        handlers.put(module, id);
+        handlers.add(new AbstractMap.SimpleEntry<>(module, id));
     }
 
     @Override public void handleBlock(final LevelAnalyzer.BlockBuilder builder) {
-        Iterator<Map.Entry<Module, Integer>> iterator = handlers.entrySet().iterator();
+        Iterator<Map.Entry<Module, Integer>> iterator = handlers.iterator();
         Map.Entry<Module, Integer> e;
 
         while (iterator.hasNext()) {

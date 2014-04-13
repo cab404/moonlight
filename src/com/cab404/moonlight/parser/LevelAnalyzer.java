@@ -1,6 +1,7 @@
 package com.cab404.moonlight.parser;
 
 import com.cab404.moonlight.util.SU;
+import com.cab404.moonlight.util.U;
 
 import java.util.*;
 
@@ -23,7 +24,17 @@ public class LevelAnalyzer {
         tags.add(new LeveledTag(tag, currentLevel()));
 
         if (tag.isClosing()) {
-            LeveledTag opening = findOpening(tag.index);
+            LeveledTag opening;
+
+            try {
+                opening = findOpening(tag.index);
+            } catch (RuntimeException e) {
+                if (e.getMessage().contains("PAAANIIIIC!!!!")) {
+                    U.w("No opening for " + tag);
+                    return;
+                } else
+                    throw e;
+            }
 
             if (handler != null) {
                 BlockBuilder blockBuilder = new BlockBuilder();

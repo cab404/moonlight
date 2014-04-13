@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * XML-нод (тег).
+ *
  * @author cab404
  */
 public class Tag {

@@ -114,15 +114,13 @@ public class SU {
 
         int sIndex = source.indexOf(start);
         if (sIndex == -1) {
-            U.w("Error while parsing string " + source + ", no start position found.");
-            return null;
+            throw new RuntimeException("Error while parsing string " + source + ", no start position found.");
         }
         sIndex += start.length();
 
         int eIndex = source.indexOf(end, sIndex);
         if (eIndex == -1) {
-            U.w("Error while parsing string " + source + ", no end position found.");
-            return null;
+            throw new RuntimeException("Error while parsing string " + source + ", no end position found.");
         }
         return source.substring(sIndex, eIndex);
     }
@@ -132,14 +130,12 @@ public class SU {
     public static String bsub(String source, String end, String start) {
         int sIndex = source.lastIndexOf(start);
         if (sIndex == -1) {
-            U.w("Error while parsing string " + source + ", no start position found.");
-            return null;
+            throw new RuntimeException("Error while parsing string " + source + ", no start position found.");
         }
 
         int eIndex = source.lastIndexOf(end, sIndex);
         if (eIndex == -1) {
-            U.w("Error while parsing string " + source + ", no end position found.");
-            return null;
+            throw new RuntimeException("Error while parsing string " + source + ", no end position found.");
         }
         return source.substring(eIndex + end.length(), sIndex);
     }
@@ -342,6 +338,21 @@ public class SU {
         }
 
         return modify;
+    }
+
+    public static CharSequence camelCaseToStr(CharSequence camelCase) {
+        StringBuilder builder = new StringBuilder(camelCase);
+
+        for (int i = 0; i < builder.length(); i++) {
+            if (Character.isUpperCase(builder.charAt(i))) {
+                builder.replace(i, i + 1, " " + Character.toLowerCase(builder.charAt(i)));
+            }
+        }
+
+        if (builder.charAt(0) == ' ') builder.deleteCharAt(0);
+        builder.setCharAt(0, Character.toUpperCase(builder.charAt(0)));
+
+        return builder;
     }
 
 }

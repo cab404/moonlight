@@ -7,6 +7,8 @@ import com.cab404.moonlight.framework.AccessProfile;
 import java.util.List;
 
 /**
+ * Простая запускалка тестов.
+ *
  * @author cab404
  */
 public class TestLauncher {

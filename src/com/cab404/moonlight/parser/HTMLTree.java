@@ -5,7 +5,6 @@ import com.cab404.moonlight.util.SU;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.regex.Pattern;
 
 /**
  * Простой навигатор по HTML.
@@ -13,7 +12,6 @@ import java.util.regex.Pattern;
  * @author cab404
  */
 public class HTMLTree implements Iterable<Tag> {
-
     /*
     No questions here.
     Just some stupid caching of start/end positions.
@@ -104,60 +102,9 @@ public class HTMLTree implements Iterable<Tag> {
         throw new TagNotFoundException();
     }
 
-    public List<Tag> getAllTagsByProperty(String key, String value) {
-        ArrayList<Tag> _return = new ArrayList<>();
-        for (Tag tag : this)
-            if (value.equals(tag.props.get(key)))
-                _return.add(tag);
-        return _return;
-    }
-
-    public List<Tag> getAllTagsByName(String name) {
-        ArrayList<Tag> _return = new ArrayList<>();
-        for (Tag tag : this)
-            if (tag.name.equals(name))
-                _return.add(tag);
-        return _return;
-    }
-
-    public Tag getTagByName(String name) {
-        for (Tag tag : this)
-            if (tag.name.equals(name))
-                return tag;
-        throw new TagNotFoundException();
-    }
-
-    public Tag getTagByProperty(String key, String value) {
-        return get(getTagIndexByProperty(key, value));
-    }
-
-    public int getTagIndexByProperty(String key, String value) {
-        for (Tag tag : this)
-            if (value.equals(tag.props.get(key)))
-                return getIndexForTag(tag);
-        throw new TagNotFoundException();
-    }
-
     private int getIndexForTag(Tag tag) {
         return tag.index - start();
     }
-
-    public int getTagIndexForName(String name) {
-        for (Tag tag : this)
-            if (tag.name.equals(name))
-                return getIndexForTag(tag);
-        throw new TagNotFoundException();
-    }
-
-    public int getTagIndexForParamRegex(String key, String regex) {
-        Pattern pattern = Pattern.compile(regex);
-        for (Tag tag : this)
-            if (tag.props.containsKey(key))
-                if (pattern.matcher(tag.props.get(key)).matches())
-                    return getIndexForTag(tag);
-        throw new TagNotFoundException();
-    }
-
 
     public int getClosingTag(Tag tag) {
 
@@ -182,15 +129,6 @@ public class HTMLTree implements Iterable<Tag> {
     public String getContents(Tag tag) {
         return html.subSequence(tag.end, get(getClosingTag(tag)).start).toString();
     }
-
-//    public String getContents(int index) {
-//        return getContents(get(index)).toString();
-//    }
-//
-//    public String getContents(Tag tag) {
-//        return html.subSequence(tag.end, get(getClosingTag(tag)).start).toString();
-//    }
-
 
     /**
      * Возвращает уровень тегов целиком.
@@ -242,12 +180,24 @@ public class HTMLTree implements Iterable<Tag> {
         StringBuilder out = new StringBuilder();
         int shift = getLevel(0);
 
-        for (Tag tag : this)
+        int end = -1;
+        for (Tag tag : this) {
+            if (end != -1) {
+                String text = html.subSequence(end, tag.start).toString().trim();
+                if (!text.isEmpty())
+                    out
+                            .append(SU.tabs(getLevel(tag) - shift + 1))
+                            .append(text)
+                            .append('\n');
+            }
             out
                     .append(getLevel(tag) - shift)
                     .append(SU.tabs(getLevel(tag) - shift))
                     .append(tag)
                     .append("\n");
+            end = tag.end;
+        }
+
         return out.toString();
     }
 
