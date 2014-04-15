@@ -218,7 +218,16 @@ public class HTMLTree implements Iterable<Tag> {
      * Very simple implementation of XPath language interpreter.
      */
     public List<Tag> xPath(String path) {
+
         List<Tag> results = copyList();
+        int shift = getLevel(0);
+        for (int i = 0; i < results.size(); ) {
+            Tag tag = results.get(i);
+            if (tag.isClosing() || tag.isComment() || getLevel(tag) - shift > 1)
+                results.remove(i);
+            else
+                i++;
+        }
 
         List<String> request = SU.charSplit(path, '/');
 
