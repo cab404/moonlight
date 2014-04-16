@@ -28,6 +28,8 @@ public class LevelAnalyzer {
 
             try {
                 opening = findOpening(tag.index);
+//                fixLyingLoners(tag.index , tags.size());
+
             } catch (RuntimeException e) {
                 if (e.getMessage().contains("PAAANIIIIC!!!!")) {
                     U.w("No opening for " + tag);
@@ -70,6 +72,10 @@ public class LevelAnalyzer {
         }
     }
 
+
+    /**
+     * Анализируем и чиним всё, что можем не добавляя ничего нового.
+     */
     private Map<String, Integer> analyzeSlice(int start, int end) {
         HashMap<String, Integer> levels = new HashMap<>();
 
@@ -83,17 +89,43 @@ public class LevelAnalyzer {
             if (!levels.containsKey(checking.tag.name)) {
                 levels.put(checking.tag.name, 0);
                 c_level = 0;
-            } else {
+            } else
                 c_level = levels.get(checking.tag.name);
-            }
 
             if (checking.tag.isClosing())
-                c_level--;
+                if (c_level == 0) checking.tag.type = Tag.Type.STANDALONE;
+                else c_level--;
+
             if (checking.tag.isOpening())
                 c_level++;
 
             levels.put(checking.tag.name, c_level);
 
+        }
+
+        levels = new HashMap<>();
+
+        for (int i = end - 1; i >= start; i--) {
+            LeveledTag checking = tags.get(i);
+            if (checking.tag.isComment()) continue;
+            if (checking.fixed) continue;
+
+            int c_level;
+
+            if (!levels.containsKey(checking.tag.name)) {
+                levels.put(checking.tag.name, 0);
+                c_level = 0;
+            } else c_level = levels.get(checking.tag.name);
+
+
+            if (checking.tag.isClosing())
+                c_level--;
+
+            if (checking.tag.isOpening())
+                if (c_level == 0) checking.tag.type = Tag.Type.STANDALONE;
+                else c_level++;
+
+            levels.put(checking.tag.name, c_level);
         }
 
         return levels;
@@ -104,37 +136,6 @@ public class LevelAnalyzer {
      */
     private void fixLyingLoners(int start, int end) {
         Map<String, Integer> levels = analyzeSlice(start, end);
-
-        for (int i = start; i < end; i++) {
-            LeveledTag tag = tags.get(i);
-            if (tag.fixed) continue;
-            tag.fixed = true;
-
-            if (tag.tag.isComment()) continue;
-
-            int c_level = levels.get(tag.tag.name);
-
-            if (c_level > 0) {
-                if (tag.tag.isOpening()) {
-                    tag.tag.type = Tag.Type.STANDALONE;
-                    levels.put(tag.tag.name, --c_level);
-                }
-            }
-
-            if (c_level < 0) {
-                if (tag.tag.isStandalone()) {
-                    tag.tag.type = Tag.Type.OPENING;
-
-                    levels.put(tag.tag.name, ++c_level);
-                }
-                if (tag.tag.isClosing()) {
-                    tag.tag.type = Tag.Type.STANDALONE;
-
-                    levels.put(tag.tag.name, ++c_level);
-                }
-            }
-
-        }
 
         for (Map.Entry<String, Integer> e : levels.entrySet())
             if (e.getValue() != 0)
