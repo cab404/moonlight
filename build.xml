@@ -29,7 +29,7 @@
     </target>
 
     <target name="jar-lib" depends="build">
-        <jar destfile="libtabun-bin.jar" basedir="${build.dir}"/>
+        <jar destfile="libtabun.jar" basedir="${build.dir}"/>
     </target>
 
     <target name="jar-sources">
