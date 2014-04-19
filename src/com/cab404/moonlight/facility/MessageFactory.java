@@ -32,7 +32,8 @@ public class MessageFactory {
 
             return parsed;
         } catch (ParseException e) {
-            e.printStackTrace();
+            U.w(e);
+            U.w(json);
         }
 
         return null;

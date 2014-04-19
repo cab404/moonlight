@@ -26,7 +26,8 @@ public abstract class Request {
         HttpResponse response;
         try {
             response = RU.exec(request, profile);
-            if (response.getStatusLine().getStatusCode() / 100 != 2) {
+            int zone = response.getStatusLine().getStatusCode() / 100;
+            if (zone > 3) {
                 ErrorResponse resp = new ErrorResponse(response.getStatusLine().toString());
                 resp.setStatusLine(response.getStatusLine());
                 statusListener.onResponseFail(resp);

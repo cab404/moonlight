@@ -101,6 +101,9 @@ public class U {
     }
 
 
+    /**
+     * Конвертирует дату/время из вида 2014-04-11T11:03:29+04:00 в Calendar.
+     */
     public static Calendar convertDatetime(String datetime) {
         String timezone = datetime.substring(18);
         Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone(timezone));

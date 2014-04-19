@@ -355,4 +355,13 @@ public class SU {
         return builder;
     }
 
+    public static CharSequence trim(CharSequence seq) {
+        if (seq.length() == 0) return seq;
+        int start = 0;
+        int end = seq.length() - 1;
+        for (; start < seq.length(); start++) if (seq.charAt(start) != ' ') break;
+        for (; end >= start; end--) if (seq.charAt(end) != ' ') break;
+        return seq.subSequence(start, end);
+    }
+
 }
