@@ -22,18 +22,18 @@
             <exclude name="**/libtabun/tests/*.java"/>
 
             <classpath>
-                <fileset dir="${lib.dir}"/>
+                <fileset dir="${libs.dir}"/>
             </classpath>
         </javac>
 
     </target>
 
     <target name="jar-lib" depends="build">
-        <jar destfile="libtabun.jar" basedir="${build.dir}"/>
+        <jar destfile="${out.dir}/libtabun.jar" basedir="${build.dir}"/>
     </target>
 
     <target name="jar-sources">
-        <jar destfile="libtabun-sources.jar" basedir="${src.dir}">
+        <jar destfile="${out.dir}/libtabun-sources.jar" basedir="${src.dir}">
             <include name="**/*.java"/>
             <exclude name="**/example/*.java"/>
             <exclude name="**/tests/*.java"/>
