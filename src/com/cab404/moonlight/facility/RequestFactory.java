@@ -107,8 +107,7 @@ public class RequestFactory {
         request.addHeader("Host", host.getHost().getHostName());
         request.addHeader("Connection", "keep-alive");
         request.addHeader("Accept-Encoding", "gzip");
-        request.addHeader("User-Agent", "sweetieBot");
-
+        request.addHeader("User-Agent", host.userAgentName());
         request.addHeader("Accept", "*/*");
 
         return this;

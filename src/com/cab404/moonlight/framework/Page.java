@@ -1,11 +1,8 @@
 package com.cab404.moonlight.framework;
 
 import com.cab404.moonlight.facility.RequestFactory;
-import com.cab404.moonlight.facility.ResponseFactory;
 import com.cab404.moonlight.parser.HTMLAnalyzerThread;
 import com.cab404.moonlight.parser.HTMLTagParserThread;
-import com.cab404.moonlight.parser.LevelAnalyzer;
-import com.cab404.moonlight.parser.TagParser;
 import org.apache.http.client.methods.HttpRequestBase;
 
 /**
@@ -15,58 +12,56 @@ import org.apache.http.client.methods.HttpRequestBase;
  */
 public abstract class Page extends Request implements ModularBlockParser.ParsedObjectHandler {
     private HTMLAnalyzerThread content;
-    private ModularBlockParser modules;
+    private HTMLTagParserThread parser;
+
+    {
+        parser = new HTMLTagParserThread();
+        content = new HTMLAnalyzerThread(parser.getHTML());
+
+        parser.bondWithAnalyzer(content);
+    }
 
     /**
      * Возвращает url страницы.
      */
-    public abstract String getURL();
+    protected abstract String getURL();
     /**
      * Подключает парсеры в обработку тегов.
      */
     protected abstract void bindParsers(ModularBlockParser base);
 
-    @Override public HttpRequestBase getRequest(AccessProfile accessProfile) {
-        return RequestFactory.get(getURL(), accessProfile).build();
-    }
-
-
-    @Override public void response(ResponseFactory.Parser parser, AccessProfile profile) {
-        TagParser tag_parser = null;
-        LevelAnalyzer level_analyzer = null;
-
-        while (tag_parser == null)
-            tag_parser = ((HTMLTagParserThread) parser).getTagParser();
-
-        while (level_analyzer == null)
-            level_analyzer = content.getLevelAnalyzer();
-
-        level_analyzer.fixLayout();
-
-    }
-
-    @Override public ResponseFactory.Parser getParser(AccessProfile profile) {
-        HTMLTagParserThread parser = new HTMLTagParserThread();
-        content = new HTMLAnalyzerThread(parser.getHTML());
-
-        modules = new ModularBlockParser(this, profile);
+    @Override protected void prepare(AccessProfile profile) {
+        ModularBlockParser modules = new ModularBlockParser(this, profile);
         content.setBlockHandler(modules);
-        bindParsers(modules);
 
-        parser.setHandler(content);
+        bindParsers(modules);
 
         content.start();
         parser.start();
-
-        content.setName(getURL() + " analyzer thread.");
-        parser.setName(getURL() + " parser thread.");
-
-        parser.bondWithAnalyzer(content);
-
-        return parser;
     }
 
-    @Override public void fetch(AccessProfile profile, ResponseFactory.StatusListener statusListener) {
-        super.fetch(profile, statusListener);
+    @Override protected HttpRequestBase getRequest(AccessProfile profile) {
+        String url = getURL();
+        content.setName(url + " analyzer thread.");
+        parser.setName(url + " parser thread.");
+        return RequestFactory.get(url, profile).build();
     }
+
+    @Override public boolean line(String line) {
+        return parser.line(line);
+    }
+
+    @Override public void finished() {
+        parser.finished();
+    }
+
+    @Override public void fetch(AccessProfile accessProfile) {
+        super.fetch(accessProfile);
+        try {
+            content.join();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }

@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Handles and stores cookies.
+ * Handles and stores cookies. Contains hostname.
  *
  * @author cab404
  */
@@ -21,6 +21,9 @@ public class AccessProfile {
 
     public HttpHost getHost() {
         return host;
+    }
+    public String userAgentName() {
+        return "Moonlight";
     }
 
     public AccessProfile(String host) {

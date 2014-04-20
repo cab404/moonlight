@@ -6,6 +6,8 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
+ * Just for order-dependent request data. It isn't actually a map.
+ *
  * @author cab404
  */
 public class EntrySet<K, V> implements Iterable<Map.Entry<K, V>> {

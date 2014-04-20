@@ -1,7 +1,5 @@
 package com.cab404.moonlight.framework;
 
-import com.cab404.moonlight.facility.ResponseFactory;
-
 /**
  * Реквест на какую-нибудь мелочь, которая не требует параллельного парсинга.
  *
@@ -9,30 +7,19 @@ import com.cab404.moonlight.facility.ResponseFactory;
  */
 public abstract class ShortRequest extends Request {
 
-    public abstract void handleResponse(String response);
+    protected abstract void handleResponse(String response);
 
+    private StringBuilder data;
 
-    @Override public void response(ResponseFactory.Parser parser, AccessProfile profile) {
-        handleResponse(((Stringifyer) parser).text.toString());
+    {data = new StringBuilder();}
+
+    @Override public boolean line(String line) {
+        data.append(line);
+        return true;
     }
 
-    @Override public ResponseFactory.Parser getParser(AccessProfile profile) {
-        return new Stringifyer();
-    }
-
-    private class Stringifyer implements ResponseFactory.Parser {
-        StringBuilder text;
-
-        private Stringifyer() {
-            text = new StringBuilder();
-        }
-
-        @Override public boolean line(String line) {
-            text.append(line).append("\n");
-            return true;
-        }
-
-        @Override public void finished() {}
+    @Override public void finished() {
+        handleResponse(data.toString());
     }
 
 }

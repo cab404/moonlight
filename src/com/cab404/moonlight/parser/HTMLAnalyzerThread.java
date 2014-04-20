@@ -6,6 +6,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * Поток обработки древа тегов.
  *
  * @author cab404
+ * @see com.cab404.moonlight.parser.HTMLTagParserThread
  */
 public class HTMLAnalyzerThread extends Thread implements TagParser.TagHandler {
     private CopyOnWriteArrayList<Tag> queue;
@@ -23,15 +24,6 @@ public class HTMLAnalyzerThread extends Thread implements TagParser.TagHandler {
 
     public void setBlockHandler(LevelAnalyzer.BlockHandler handler) {
         analyzer.setBlockHandler(handler);
-    }
-
-    public LevelAnalyzer getLevelAnalyzer() {
-        if (started)
-            synchronized (working_lock) {
-                return analyzer;
-            }
-        else
-            return null;
     }
 
     @Override public void run() {

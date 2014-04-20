@@ -8,6 +8,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * Загружает страницу и парсит теги в отдельном потоке.
  *
  * @author cab404
+ * @see com.cab404.moonlight.parser.HTMLAnalyzerThread
  */
 public class HTMLTagParserThread extends Thread implements ResponseFactory.Parser {
     private final Object working_lock;
@@ -20,17 +21,12 @@ public class HTMLTagParserThread extends Thread implements ResponseFactory.Parse
         return parser.getHTML();
     }
 
-    public TagParser getTagParser() {
-        if (started)
-            synchronized (working_lock) {
-                return parser;
-            }
-        else
-            return null;
-    }
-
+    /**
+     * Подключает анализатор к потоку тегов и посылает null в теги после завершения парсирования.
+     */
     public void bondWithAnalyzer(HTMLAnalyzerThread bonded_analyzer) {
         this.bonded_analyzer = bonded_analyzer;
+        parser.setTagHandler(bonded_analyzer);
     }
 
     public HTMLTagParserThread() {
@@ -38,10 +34,6 @@ public class HTMLTagParserThread extends Thread implements ResponseFactory.Parse
         working_lock = new Object();
         parser = new TagParser();
         setDaemon(true);
-    }
-
-    public void setHandler(TagParser.TagHandler handler) {
-        parser.setTagHandler(handler);
     }
 
     @Override public void run() {
