@@ -79,7 +79,7 @@ public class RequestFactory {
     /**
      * Создаёт body нарезанного реквеста из множества ключ,значение,ключ,значение...
      */
-    public RequestFactory MultipartRequest(EntrySet<String, String> body) {
+    public RequestFactory MultipartRequest(EntrySet<String, String> body, boolean isChunked) {
         String boundary = UUID.randomUUID().toString().substring(24);
         request.addHeader("Content-Type", "multipart/form-data; boundary=" + boundary);
 
@@ -94,7 +94,7 @@ public class RequestFactory {
 
         packet.append(boundary).append("--\r\n");
 
-        setBody(packet.toString());
+        setBody(packet.toString(), isChunked);
 
         return this;
     }
