@@ -65,8 +65,9 @@ public class AccessProfile {
     }
 
     public static AccessProfile parseString(String s) {
+        U.v(s);
         List<String> split = SU.split(s, ":", 2);
-        List<String> split2 = SU.split(split.get(0), "@", 2);
+        List<String> split2 = SU.split(split.get(1), "@", 2);
 
         AccessProfile _return = new AccessProfile(split.get(0), U.parseInt(split2.get(0)));
         _return.addCookies(split2.get(1));
