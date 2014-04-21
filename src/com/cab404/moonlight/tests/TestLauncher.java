@@ -1,8 +1,8 @@
 package com.cab404.moonlight.tests;
 
+import com.cab404.moonlight.framework.AccessProfile;
 import com.cab404.moonlight.util.SU;
 import com.cab404.moonlight.util.U;
-import com.cab404.moonlight.framework.AccessProfile;
 
 import java.util.List;
 
@@ -30,9 +30,13 @@ public class TestLauncher {
         }
     }
 
+    /**
+     * Запускает тесты и завершает выполнение программы с кодом, равным количеству проваленных тестов.
+     */
     public void launch(List<Class<? extends Test>> test_classes) {
+        int i = 0;
+
         try {
-            int i = 0;
 
             for (Class<? extends Test> test : test_classes) {
                 if (test(test.getConstructor().newInstance()))
@@ -41,7 +45,9 @@ public class TestLauncher {
             U.v(i + "/" + test_classes.size() + " passed.");
 
         } catch (Throwable e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Cannot create tests!", e);
         }
+
+        System.exit(test_classes.size() - i);
     }
 }

@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project name="libtabun" default="jar">
+<project name="libtabun" default="def">
     <property file="build.properties"/>
 
+    <target name="def" depends="test, jar, clean"/>
     <target name="clean">
         <delete dir="${build.dir}"/>
     </target>
 
-    <target name="build" depends="clean">
+    <target name="build-clean">
 
+        <delete dir="${build.dir}"/>
         <mkdir dir="${build.dir}"/>
 
         <javac
@@ -28,7 +30,7 @@
 
     </target>
 
-    <target name="jar-lib" depends="build">
+    <target name="jar-lib" depends="build-clean">
         <jar destfile="${out.dir}/libtabun.jar" basedir="${build.dir}"/>
     </target>
 
@@ -40,7 +42,39 @@
         </jar>
     </target>
 
-    <target name="jar" depends="jar-lib, jar-sources">
+    <target name="jar" depends="jar-lib, jar-sources"/>
+
+    <target name="build-test">
+
+        <delete dir="${build.dir}"/>
+        <mkdir dir="${build.dir}"/>
+
+        <javac
+                executable="${jdk.bin}"
+                destdir="${build.dir}"
+                srcdir="${src.dir}"
+                >
+
+            <include name="**/*.java"/>
+
+            <classpath>
+                <fileset dir="${libs.dir}"/>
+            </classpath>
+        </javac>
     </target>
+
+    <target name="test" depends="build-test">
+        <java classname="com.cab404.libtabun.tests.Tests">
+            <arg line="auto"/>
+
+            <classpath path="${build.dir}"/>
+
+            <classpath>
+                <fileset dir="${libs.dir}"/>
+            </classpath>
+
+        </java>
+    </target>
+
 
 </project>
