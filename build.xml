@@ -3,7 +3,7 @@
 <project name="libtabun" default="def">
     <property file="build.properties"/>
 
-    <target name="def" depends="test, jar, clean"/>
+    <target name="def" depends="run-tests, jar-all, clean"/>
     <target name="clean">
         <delete dir="${build.dir}"/>
     </target>
@@ -42,7 +42,7 @@
         </jar>
     </target>
 
-    <target name="jar" depends="jar-lib, jar-sources"/>
+    <target name="jar-all" depends="jar-lib, jar-sources"/>
 
     <target name="build-test">
 
@@ -63,7 +63,7 @@
         </javac>
     </target>
 
-    <target name="test" depends="build-test">
+    <target name="run-tests" depends="build-test">
         <java classname="com.cab404.libtabun.tests.Tests">
             <arg line="auto"/>
 
