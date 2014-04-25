@@ -1,8 +1,6 @@
 package com.cab404.moonlight.util;
 
 import com.cab404.moonlight.facility.ResponseFactory;
-import org.apache.http.Header;
-import org.apache.http.client.methods.HttpRequestBase;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -18,6 +16,11 @@ import java.util.TimeZone;
  */
 public class U {
     private static HashMap<Thread, Timer> timers;
+    private static Logger logger = SystemOutLogger.getInstance();
+
+    public static void setLogger(Logger logger) {
+        U.logger = logger;
+    }
 
     /**
      * Возвращает таймер для текущего потока.
@@ -32,26 +35,16 @@ public class U {
         return timer;
     }
 
-    /**
-     * Делает абсолютно то же, что и Log.v("Luna Log", obj.toString()),
-     * плюс проверяет на null.
-     */
     public static void v(Object obj) {
         try {
-            System.out.println(obj == null ? null : obj.toString());
-            System.out.flush();
+            logger.verbose(obj == null ? null : obj.toString());
         } catch (NullPointerException e) {
             w(e);
         }
     }
 
-    /**
-     * Делает абсолютно то же, что и Log.w("Luna Log", obj.toString()),
-     * плюс проверяет на null.
-     */
     public static void w(Object obj) {
-        System.err.println(obj == null ? null : obj.toString());
-        System.err.flush();
+        logger.verbose(obj == null ? null : obj.toString() + "\n");
     }
 
     /**
@@ -62,24 +55,7 @@ public class U {
         StringWriter writer = new StringWriter();
         PrintWriter out = new PrintWriter(writer);
         if (obj != null) obj.printStackTrace(out);
-        System.err.println(writer.toString());
-        System.err.flush();
-    }
-
-    public static void v(HttpRequestBase request) {
-        v(request.getRequestLine());
-        for (Header header : request.getAllHeaders())
-            v(header.getName() + ": " + header.getValue());
-        v("");
-    }
-
-    /**
-     * Делает абсолютно то же, что и Log.wtf("Luna Log", obj.toString()),
-     * плюс проверяет на null.
-     */
-    public static void wtf(Object obj) {
-        System.err.println("WTF? " + (obj == null ? null : obj.toString()));
-        System.err.flush();
+        logger.verbose(writer.toString() + "\n");
     }
 
     /**

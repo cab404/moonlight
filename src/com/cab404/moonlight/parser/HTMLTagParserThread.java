@@ -11,11 +11,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @see com.cab404.moonlight.parser.HTMLAnalyzerThread
  */
 public class HTMLTagParserThread extends Thread implements ResponseFactory.Parser {
-    private final Object working_lock;
+    private HTMLAnalyzerThread bonded_analyzer;
     private CopyOnWriteArrayList<String> queue;
     private TagParser parser;
-    private HTMLAnalyzerThread bonded_analyzer;
-    public boolean started = false;
 
     public CharSequence getHTML() {
         return parser.getHTML();
@@ -31,33 +29,30 @@ public class HTMLTagParserThread extends Thread implements ResponseFactory.Parse
 
     public HTMLTagParserThread() {
         this.queue = new CopyOnWriteArrayList<>();
-        working_lock = new Object();
         parser = new TagParser();
         setDaemon(true);
     }
 
     @Override public void run() {
-        synchronized (working_lock) {
-            started = true;
 
-            while (true) {
+        while (true) {
 
-                if (!queue.isEmpty()) {
-                    String line;
+            if (!queue.isEmpty()) {
+                String line;
 
-                    line = queue.remove(0);
+                line = queue.remove(0);
 
-                    if (line == null)
-                        break;
+                if (line == null)
+                    break;
 
-                    parser.process(line + "\n");
+                parser.process(line + "\n");
 
 
-                }
             }
-            if (bonded_analyzer != null)
-                bonded_analyzer.finished();
         }
+
+        if (bonded_analyzer != null)
+            bonded_analyzer.finished();
 
     }
 

@@ -65,7 +65,6 @@ public class AccessProfile {
     }
 
     public static AccessProfile parseString(String s) {
-        U.v(s);
         List<String> split = SU.split(s, ":", 2);
         List<String> split2 = SU.split(split.get(1), "@", 2);
 

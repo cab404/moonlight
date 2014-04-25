@@ -2,7 +2,8 @@ package com.cab404.moonlight.framework;
 
 import com.cab404.moonlight.facility.ResponseFactory;
 import com.cab404.moonlight.util.RU;
-import com.cab404.moonlight.util.U;
+import com.cab404.moonlight.util.exceptions.LoadingFail;
+import com.cab404.moonlight.util.exceptions.RequestFail;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpRequestBase;
 
@@ -42,17 +43,14 @@ public abstract class Request implements ResponseFactory.Parser {
             response = RU.exec(request, profile);
             onResponseGain(response);
         } catch (Throwable e) {
-            U.w("Page: Response fail");
-            U.w(e);
-            return;
+            throw new RequestFail(e);
         }
 
         prepare(profile);
         try {
             ResponseFactory.read(response, this);
         } catch (Throwable e) {
-            U.w("Page: Loading fail");
-            U.w(e);
+            throw new LoadingFail(e);
         }
 
 
