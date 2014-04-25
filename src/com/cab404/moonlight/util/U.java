@@ -44,7 +44,7 @@ public class U {
     }
 
     public static void w(Object obj) {
-        logger.verbose(obj == null ? null : obj.toString() + "\n");
+        logger.error(obj == null ? null : obj.toString() + "\n");
     }
 
     /**
@@ -55,7 +55,7 @@ public class U {
         StringWriter writer = new StringWriter();
         PrintWriter out = new PrintWriter(writer);
         if (obj != null) obj.printStackTrace(out);
-        logger.verbose(writer.toString() + "\n");
+        logger.error(writer.toString() + "\n");
     }
 
     /**

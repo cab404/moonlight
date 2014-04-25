@@ -14,9 +14,9 @@ public class SystemOutLogger implements Logger {
 
     @Override
     public void error(String str) {
-        System.out.println(str);
+        System.err.println(str);
     }
     @Override public void verbose(String str) {
-        System.err.println(str);
+        System.out.println(str);
     }
 }
