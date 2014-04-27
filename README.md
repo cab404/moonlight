@@ -1,5 +1,3 @@
-libtabun
-========
-Библиотека-парсер Табуна, но по идее, может парсить всё, что хочешь.
-Комментарии написаны на русском и английском, deal with it.
-Все вопросы можно задать на me@cab404.ru
+Moonlight
+=========
+Just a little easy-to-use framework for writing interaction libraries, e.g for Android clients.
