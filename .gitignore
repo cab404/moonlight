@@ -13,6 +13,9 @@
 # Java class files
 *.class
 
+# Backups
+*~
+
 # Generated files
 bin/
 gen/
