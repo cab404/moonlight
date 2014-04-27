@@ -13,11 +13,11 @@ import org.apache.http.client.methods.HttpRequestBase;
 public abstract class Page extends Request implements ModularBlockParser.ParsedObjectHandler {
     private HTMLAnalyzerThread content;
     private HTMLTagParserThread parser;
+    private ModularBlockParser modules;
 
     {
         parser = new HTMLTagParserThread();
         content = new HTMLAnalyzerThread(parser.getHTML());
-
         parser.bondWithAnalyzer(content);
     }
 
@@ -31,7 +31,7 @@ public abstract class Page extends Request implements ModularBlockParser.ParsedO
     protected abstract void bindParsers(ModularBlockParser base);
 
     @Override protected void prepare(AccessProfile profile) {
-        ModularBlockParser modules = new ModularBlockParser(this, profile);
+        modules = new ModularBlockParser(this, profile);
         content.setBlockHandler(modules);
 
         bindParsers(modules);
@@ -48,7 +48,7 @@ public abstract class Page extends Request implements ModularBlockParser.ParsedO
     }
 
     @Override public boolean line(String line) {
-        return parser.line(line);
+        return parser.line(line) && !modules.isEmpty();
     }
 
     @Override public void finished() {

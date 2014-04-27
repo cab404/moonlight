@@ -55,6 +55,10 @@ public class ModularBlockParser implements LevelAnalyzer.BlockHandler {
 
     }
 
+    public boolean isEmpty() {
+        return handlers.isEmpty();
+    }
+
     public interface ParsedObjectHandler {
         public void handle(Object object, int key);
     }
