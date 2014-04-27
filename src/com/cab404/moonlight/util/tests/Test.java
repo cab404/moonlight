@@ -1,4 +1,4 @@
-package com.cab404.moonlight.tests;
+package com.cab404.moonlight.util.tests;
 
 import com.cab404.moonlight.framework.AccessProfile;
 import com.cab404.moonlight.util.SU;
