@@ -10,6 +10,8 @@ import java.util.zip.DeflaterInputStream;
 import java.util.zip.GZIPInputStream;
 
 /**
+ * Response reader.
+ *
  * @author cab404
  */
 public class ResponseFactory {
@@ -20,10 +22,7 @@ public class ResponseFactory {
     }
 
     /**
-     * Каждую новую полученную строку пропускает через parser
-     *
-     * @param parser Parser, слушающий каждую новую строку
-     * @param response Сбснна, откуда слушать.
+     * Fetches page and passes every line to parser
      */
     public static void read(HttpResponse response, Parser parser) {
         try {
@@ -39,11 +38,7 @@ public class ResponseFactory {
     }
 
     /**
-     * Каждую новую полученную строку пропускает через parser
-     *
-     * @param parser Parser, слушающий каждую новую строку
-     * @param response Сбснна, откуда слушать.
-     * @param status   Статус загрузки ответа.
+     * Fetches page and passes every line to parser
      */
     public static void read(HttpResponse response, Parser parser, StatusListener status) {
         try {

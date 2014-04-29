@@ -1,4 +1,4 @@
-package com.cab404.moonlight.util;
+package com.cab404.moonlight.util.logging;
 
 /**
  * @author cab404

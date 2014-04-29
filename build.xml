@@ -3,7 +3,7 @@
 <project name="moonlight" default="def">
     <property file="build.properties"/>
 
-    <target name="def" depends="run-tests, jar-all, clean"/>
+    <target name="def" depends="jar-all, clean"/>
     <target name="clean">
         <delete dir="${build.dir}"/>
     </target>

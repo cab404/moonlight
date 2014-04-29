@@ -2,12 +2,12 @@ package com.cab404.moonlight.util.tests;
 
 import com.cab404.moonlight.framework.AccessProfile;
 import com.cab404.moonlight.util.SU;
-import com.cab404.moonlight.util.U;
+import com.cab404.moonlight.util.logging.Log;
 
 import java.util.List;
 
 /**
- * Простая запускалка тестов.
+ * Simple test launcher.
  *
  * @author cab404
  */
@@ -21,17 +21,17 @@ public class TestLauncher {
     public boolean test(Test test) {
         try {
             test.test(profile);
-            U.v(SU.fillSpaces(test.title() + "", 50, 1, SU.FillType.LEFT) + " [  OK  ] ");
+            Log.v(SU.fillSpaces(test.title() + "", 50, 1, SU.Gravity.LEFT) + " [  OK  ] ");
             return true;
         } catch (Throwable e) {
-            U.v(SU.fillSpaces(test.title() + "", 50, 1, SU.FillType.LEFT) + " [ fail ] ");
-            U.w(e);
+            Log.v(SU.fillSpaces(test.title() + "", 50, 1, SU.Gravity.LEFT) + " [ fail ] ");
+            Log.w(e);
             return false;
         }
     }
 
     /**
-     * Запускает тесты и завершает выполнение программы с кодом, равным количеству проваленных тестов.
+     * Launches tests and finishes with System.exit(). Exit code will be number of failed tests.
      */
     public void launch(List<Class<? extends Test>> test_classes) {
         int i = 0;
@@ -42,7 +42,7 @@ public class TestLauncher {
                 if (test(test.getConstructor().newInstance()))
                     i++;
             }
-            U.v(i + "/" + test_classes.size() + " passed.");
+            Log.v(i + "/" + test_classes.size() + " passed.");
 
         } catch (Throwable e) {
             throw new RuntimeException("Cannot create tests!", e);

@@ -3,7 +3,7 @@ package com.cab404.moonlight.parser;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * Поток обработки древа тегов.
+ * HTML tree analyzing thread.
  *
  * @author cab404
  * @see com.cab404.moonlight.parser.HTMLTagParserThread

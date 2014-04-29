@@ -1,6 +1,6 @@
 package com.cab404.moonlight.framework;
 
-import com.cab404.moonlight.facility.RequestFactory;
+import com.cab404.moonlight.facility.RequestBuilder;
 import com.cab404.moonlight.parser.HTMLAnalyzerThread;
 import com.cab404.moonlight.parser.HTMLTagParserThread;
 import org.apache.http.client.methods.HttpRequestBase;
@@ -22,11 +22,12 @@ public abstract class Page extends Request implements ModularBlockParser.ParsedO
     }
 
     /**
-     * Возвращает url страницы.
+     * Returns page url.
      */
     protected abstract String getURL();
     /**
-     * Подключает парсеры в обработку тегов.
+     * Binds modules.
+     * Binded module will receive blocks and it's output will be piped to ${link ModularBlockParser.ParsedObjectHandler#handle}
      */
     protected abstract void bindParsers(ModularBlockParser base);
 
@@ -44,7 +45,7 @@ public abstract class Page extends Request implements ModularBlockParser.ParsedO
         String url = getURL();
         content.setName(url + " analyzer thread.");
         parser.setName(url + " parser thread.");
-        return RequestFactory.get(url, profile).build();
+        return RequestBuilder.get(url, profile).build();
     }
 
     @Override public boolean line(String line) {

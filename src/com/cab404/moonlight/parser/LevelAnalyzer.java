@@ -1,12 +1,12 @@
 package com.cab404.moonlight.parser;
 
 import com.cab404.moonlight.util.SU;
-import com.cab404.moonlight.util.U;
+import com.cab404.moonlight.util.logging.Log;
 
 import java.util.*;
 
 /**
- * Довольно простой эвристический анализатор ошибок HTML.
+ * Simple heuristic HTML fixer.
  */
 public class LevelAnalyzer {
     private List<LeveledTag> tags;
@@ -21,21 +21,17 @@ public class LevelAnalyzer {
 
     public void add(Tag tag) {
         tag.index = tags.size();
-        tags.add(new LeveledTag(tag, currentLevel()));
+        tags.add(new LeveledTag(tag, 0));
 
         if (tag.isClosing()) {
             LeveledTag opening;
 
-            try {
-                opening = findOpening(tag.index);
-//                fixLyingLoners(tag.index , tags.size());
-
-            } catch (RuntimeException e) {
-                if (e.getMessage().contains("PAAANIIIIC!!!!")) {
-                    U.w("No opening for " + tag);
-                    return;
-                } else
-                    throw e;
+            opening = findOpening(tag.index);
+            if (opening == null) {
+                // IDK what to do here. We have no block, and that may be a pretty annoying and sneaky error.
+                // I'll just send a message.
+                Log.w("No opening tag found for " + tag.toString());
+                return;
             }
 
             if (handler != null) {
@@ -74,7 +70,10 @@ public class LevelAnalyzer {
 
 
     /**
-     * Анализируем и чиним всё, что можем не добавляя ничего нового.
+     * Analyzes slice (from start of the block to it's end), and fixes errors if possible.
+     * Never adds new tags. Just because it don't wants to. And because input don't wants it
+     * either. This parser isn't for dark deeps of Internet, there you can use TagSoup.
+     * This one made for relatively good-written sites.
      */
     private Map<String, Integer> analyzeSlice(int start, int end) {
         HashMap<String, Integer> levels = new HashMap<>();
@@ -132,7 +131,7 @@ public class LevelAnalyzer {
     }
 
     /**
-     * Делаем из незакрытых тегов теги standalone (<tag/>)
+     * Checking if analyzeSlice fixed everything. If not, then RuntimeException.
      */
     private void fixLyingLoners(int start, int end) {
         Map<String, Integer> levels = analyzeSlice(start, end);
@@ -140,9 +139,12 @@ public class LevelAnalyzer {
         for (Map.Entry<String, Integer> e : levels.entrySet())
             if (e.getValue() != 0)
                 throw new RuntimeException("Parsing error - cannot resolve tree at tag " + e.getKey());
-
     }
 
+    /**
+     * Searches for opening tag.
+     * It only cares about tags with it's name, that helps with broken blocks. In some cases.
+     */
     public LeveledTag findOpening(int index) {
         LeveledTag end = tags.get(tags.size() - 1);
         int c_level = 0;
@@ -167,7 +169,7 @@ public class LevelAnalyzer {
             }
         }
 
-        throw new RuntimeException("WARNING, OPENING TAG NOT FOUND, ABORTING EVERYTHING! PAAANIIIIC!!!!");
+        return null;
     }
 
     void fixIndents(int start, int end) {
@@ -188,31 +190,12 @@ public class LevelAnalyzer {
     }
 
     /**
-     * Перерасставляет отступы.
+     * Builds a tree.
      */
-    public void fixLayout() {
-
-        fixIndents(0, tags.size());
-    }
-
-    private int currentLevel() {
-        if (tags.isEmpty()) return 0;
-        else {
-            LeveledTag last = tags.get(tags.size() - 1);
-            if (last.tag.isOpening())
-                return last.level + 1;
-            else if (last.tag.isClosing())
-                return last.level - 1;
-            else
-                return last.level;
-        }
-    }
-
     @Override public String toString() {
         StringBuilder builder = new StringBuilder();
         for (LeveledTag tag : tags) {
             builder
-                    .append(tag.level)
                     .append(SU.tabs(tag.level))
                     .append(tag.tag)
                     .append("\n");
@@ -220,14 +203,23 @@ public class LevelAnalyzer {
         return builder.toString();
     }
 
+    /**
+     * Returns an unmodifiable slice of leveled tags.
+     */
     public List<LeveledTag> getSlice(int start, int end) {
         return Collections.unmodifiableList(tags.subList(start, end));
     }
 
+    /**
+     * Interface for handling blocks.
+     */
     public static interface BlockHandler {
         public void handleBlock(BlockBuilder builder);
     }
 
+    /**
+     * Simple class which builds tree on demand and caches it.
+     */
     public class BlockBuilder {
         Tag header, footer;
         private HTMLTree built;

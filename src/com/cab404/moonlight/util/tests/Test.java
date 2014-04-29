@@ -13,9 +13,11 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Простой тест запросов.
+ * Simple abstract test class with a few helping methods.
+ * Provides you with AccessProfile for requests.
  *
  * @author cab404
+ * @see com.cab404.moonlight.util.tests.TestLauncher
  */
 public abstract class Test {
 

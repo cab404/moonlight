@@ -88,7 +88,7 @@ public class HTMLTree implements Iterable<Tag> {
         parser.process(text);
         html = text;
 
-        analyzer.fixLayout();
+        analyzer.fixIndents(0, analyzer.size());
         leveled = analyzer.getSlice(0, analyzer.size());
 
     }

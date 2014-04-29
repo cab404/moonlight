@@ -8,6 +8,8 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpRequestBase;
 
 /**
+ * Base class for the requests.
+ *
  * @author cab404
  */
 public abstract class Request implements ResponseFactory.Parser {
@@ -16,16 +18,15 @@ public abstract class Request implements ResponseFactory.Parser {
     protected abstract HttpRequestBase getRequest(AccessProfile accessProfile);
 
     /**
-     * Приготовления перед получением данных в {@link Request#line(String)}
+     * Preparations before receiving data into {@link Request#line(String)}
      */
     protected void prepare(AccessProfile accessProfile) {}
     /**
-     * Сюда будут поступать полученные из сети данные (построчно).
-     * Если данные больше не нужны, верните false.
+     * It will receive data until we out of it or false is returned.
      */
     @Override public boolean line(String line) {return false;}
     /**
-     * Выполняется после завершения приёма данных.
+     * Invoked after data loading finished.
      */
     @Override public abstract void finished();
 

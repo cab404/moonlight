@@ -108,7 +108,7 @@ public class SU {
     }
 
     /**
-     * String.substring, только с выбором начала и конца строки в виде строк
+     * String.substring, but with Strings instead of indexes.
      */
     public static String sub(String source, String start, String end) {
 
@@ -125,7 +125,7 @@ public class SU {
         return source.substring(sIndex, eIndex);
     }
     /**
-     * Backwards sub, делает то же, что и sub, только с конца строки.
+     * Backwards sub, just like sub, but will start searching from end of string.
      */
     public static String bsub(String source, String end, String start) {
         int sIndex = source.lastIndexOf(start);
@@ -140,27 +140,29 @@ public class SU {
         return source.substring(eIndex + end.length(), sIndex);
     }
     /**
-     * Всего лишь сокращение URLEncoder.encode()
+     * URLEncoder.encode()
      */
     public static String rl(String toConvert) {
         try {
             return URLEncoder.encode(toConvert, "UTF-8");
         } catch (UnsupportedEncodingException e) {
-            U.w(e);
             return null;
         }
     }
     /**
-     * Всего лишь сокращение URLDecoder.decode()
+     * URLDecoder.decode()
      */
     public static String drl(String toConvert) {
         try {
             return URLDecoder.decode(toConvert, "UTF-8");
         } catch (UnsupportedEncodingException e) {
-            U.w(e);
             return null;
         }
     }
+
+    /**
+     * Joins collection of strings using supplied delimeter
+     */
     public static String join(Collection<String> strings, String delimeter) {
         StringBuilder out = new StringBuilder();
         Iterator<String> iterator = strings.iterator();
@@ -208,7 +210,7 @@ public class SU {
     };
 
     /**
-     * Фух. Эта штука меняет все HTML 4.0 и 2.0 entity на нормальный текст.
+     * Decodes HTML entities.
      */
     public static String deEntity(String in) {
         StringBuilder data = new StringBuilder(in);
@@ -252,6 +254,9 @@ public class SU {
         return true;
     }
 
+    /**
+     * Searches for HTML tags and removes them. Without regexes.
+     */
     public static String removeAllTags(String toProcess) {
         int s;
         while ((s = toProcess.indexOf('<')) != -1) {
@@ -262,23 +267,35 @@ public class SU {
         return toProcess;
     }
 
+    /**
+     * Returns String with supplied amount of tabs.
+     */
     public static String tabs(int num) {
         StringBuilder tabs = new StringBuilder();
         for (int i = 0; i < num; i++) tabs.append("\t");
         return tabs.toString();
     }
 
+    /**
+     * Well, it's pretty powerful logging... thing.
+     * It creates tables and supports cell gravity.
+     * <p/>
+     * Every supplied...
+     * ...integer will set column width.
+     * ...Gravity will set the gravity of cell.
+     * ...string will be appended.
+     */
     public static String table(Object... entries) {
         StringBuilder line = new StringBuilder("|");
 
         int column = 10;
-        FillType ft = FillType.CENTER;
+        Gravity ft = Gravity.CENTER;
 
         for (Object entry : entries) {
             if (entry instanceof Integer) {
                 column = (Integer) entry;
-            } else if (entry instanceof FillType) {
-                ft = (FillType) entry;
+            } else if (entry instanceof Gravity) {
+                ft = (Gravity) entry;
             } else if (entry instanceof CharSequence) {
                 line
                         .append(fillSpaces(entry.toString(), column, 0, ft))
@@ -289,14 +306,18 @@ public class SU {
     }
 
 
-    public static enum FillType {
+    public static enum Gravity {
         RIGHT, LEFT, CENTER
     }
-    public static String fillSpaces(String fill, int num, int offset, FillType type) {
+
+    /**
+     * Fills string with spaces to given length, according to gravity and offset.
+     */
+    public static String fillSpaces(String fill, int num, int offset, Gravity gravity) {
         int left = 0, right = 0;
         num -= offset * 2;
 
-        switch (type) {
+        switch (gravity) {
             case RIGHT:
                 right = offset;
                 left = offset + num - fill.length();
@@ -315,6 +336,9 @@ public class SU {
 
     }
 
+    /**
+     * Returns given amount of spaces.
+     */
     public static String spaces(int num) {
         StringBuilder spaces = new StringBuilder();
         for (int i = 0; i < num; i++)
@@ -323,7 +347,8 @@ public class SU {
     }
 
     /**
-     * Убирает подряд стоящие одинаковые символы.
+     * Deletes recurring chars.<br/>
+     * <pre>("  a  b  c", ' ') = " a b c"</pre>
      */
     public static CharSequence removeRecurringChars(String in, char remove) {
         StringBuilder modify = new StringBuilder(in);
@@ -340,6 +365,9 @@ public class SU {
         return modify;
     }
 
+    /**
+     * (DoNotAskMeWhyI'veDoneThis) = Do not ask me why i've done this
+     */
     public static CharSequence camelCaseToStr(CharSequence camelCase) {
         StringBuilder builder = new StringBuilder(camelCase);
 
@@ -355,6 +383,9 @@ public class SU {
         return builder;
     }
 
+    /**
+     * Trims spaces in a CharSequence
+     */
     public static CharSequence trim(CharSequence seq) {
         if (seq.length() == 0) return seq;
         int start = 0;

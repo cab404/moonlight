@@ -1,7 +1,7 @@
 package com.cab404.moonlight.framework;
 
 /**
- * Реквест на какую-нибудь мелочь, которая не требует параллельного парсинга.
+ * Simple request for a short string.
  *
  * @author cab404
  */

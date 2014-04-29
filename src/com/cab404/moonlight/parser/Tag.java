@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * XML-нод (тег).
+ * *ML node
  *
  * @author cab404
  */
@@ -19,17 +19,17 @@ public class Tag {
     public String name, text;
     public Type type;
 
-    // Тег типа </x>
+    // </x>
     public boolean isClosing() {
         return type == Type.CLOSING;
     }
 
-    // Тег типа <x/>
+    // <x/>
     public boolean isStandalone() {
         return type == Type.STANDALONE;
     }
 
-    // Тег типа <!-- x --> и <! x>
+    // <!-- x --> & <! x>
     public boolean isComment() {
         return type == Type.COMMENT;
     }

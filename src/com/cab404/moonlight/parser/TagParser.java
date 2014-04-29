@@ -6,8 +6,7 @@ import com.cab404.moonlight.util.SU;
 import java.util.List;
 
 /**
- * +20% cooler; +4k% faster;
- * Парсит теги из того, что ему дают. И больше ничего.
+ * Just a simple tag parser.
  *
  * @author cab404
  */
@@ -17,13 +16,20 @@ public class TagParser {
     private StringBuilder full_data;
 
     /**
-     * Это StringBuilder, но пожалуйста, не меняйте его вручную!
-     * Данные привязаны и обновляются в объекте по мере получения.
+     * It's StringBuilder, but still, do not change it's contents manually.
+     * Please.
+     * It can not only break all tags, produced by this parser, but if this
+     * library happens to be it production, your colleagues may break some
+     * of your bones too.
      */
     public CharSequence getHTML() {
         return full_data;
     }
 
+    /**
+     * Till this class doesn't actually needs any of tags it parses,
+     * it will throw all of them to thing you'll stick in here.
+     */
     public void setTagHandler(TagHandler handler) {
         this.handler = handler;
     }
@@ -42,9 +48,23 @@ public class TagParser {
     int prev = 0;
     int i, j = 0;
 
-    synchronized void process(String line) {
-        buffer.append(line);
-        full_data.append(line);
+    /**
+     * Takes a chunk of text, appends it to buffer and full HTML, then tries to find some new tags.
+     * <p/>
+     * <br/>
+     * <br/><strong>Q</strong>: Why haven't you created TagInputStream?
+     * <br/><strong>A</strong>: IDK.
+     * <br/>
+     * <br/><strong>Q</strong>: Why are you using buffer AND full_data?
+     * <br/><strong>A</strong>: I thought it would be faster and safer (and more fun for me)
+     * to work with small buffer instead of full page. I might be terribly wrong.
+     * <br/>
+     * <br/><strong>Q</strong>: Can I feed it with raw bytes?
+     * <br/><strong>A</strong>: I newer tried, but I suppose it will become sentient afterwards.
+     */
+    synchronized void process(String chunk) {
+        buffer.append(chunk);
+        full_data.append(chunk);
 
         while (true) {
 
@@ -97,9 +117,17 @@ public class TagParser {
                 // Parsing properties.
                 String params = name_and_everything_else.get(1).trim();
                 String key = null;
+
+                // Current temporary position.
                 int s = 0;
+
+                // If we are parsing value in ' (true) or " (false) boundaries
                 boolean quot = false;
-                int mode = 0; // 0 - ищем конец ключа, 1 - ищем начало значения, 2 - ищем конец значения.
+
+                // 0 - searching for end of key,
+                // 1 - searching for a start of value,
+                // 2 - searching the end of value.
+                int mode = 0;
 
                 for (int index = 0; index < params.length(); index++) {
                     char current = params.charAt(index);
@@ -129,6 +157,9 @@ public class TagParser {
         }
     }
 
+    /**
+     * Shrinks input buffer and moves counters to new positions.
+     */
     private void step() {
         buffer.delete(0, j + 1);
         prev += j + 1;

@@ -5,7 +5,8 @@ import com.cab404.moonlight.facility.ResponseFactory;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * Загружает страницу и парсит теги в отдельном потоке.
+ * Downloads and parses text to *ML nodes.
+ * Works in pair with
  *
  * @author cab404
  * @see com.cab404.moonlight.parser.HTMLAnalyzerThread
