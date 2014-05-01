@@ -34,7 +34,7 @@ public class TagParser {
         this.handler = handler;
     }
 
-    TagParser() {
+    public TagParser() {
         full_data = new StringBuilder();
         buffer = new StringBuilder();
     }
@@ -52,6 +52,10 @@ public class TagParser {
      * Takes a chunk of text, appends it to buffer and full HTML, then tries to find some new tags.
      * <p/>
      * <br/>
+     * <br/><strong>Q</strong>: Why not TagSoup?
+     * <br/><strong>A</strong>: IDK.
+     * <br/>
+     * <br/>
      * <br/><strong>Q</strong>: Why haven't you created TagInputStream?
      * <br/><strong>A</strong>: IDK.
      * <br/>
@@ -62,7 +66,7 @@ public class TagParser {
      * <br/><strong>Q</strong>: Can I feed it with raw bytes?
      * <br/><strong>A</strong>: I newer tried, but I suppose it will become sentient afterwards.
      */
-    synchronized void process(String chunk) {
+    public synchronized void process(String chunk) {
         buffer.append(chunk);
         full_data.append(chunk);
 
@@ -80,6 +84,11 @@ public class TagParser {
 
             String inner = buffer.substring(i + 1, j);
             int l = inner.length() - 1;
+
+            if (l == -1) {
+                step();
+                continue;
+            }
 
 
             if (inner.startsWith(COMM_START)) {
@@ -118,8 +127,8 @@ public class TagParser {
                 String params = name_and_everything_else.get(1).trim();
                 String key = null;
 
-                // Current temporary position.
                 int s = 0;
+                // Current temporary position.
 
                 // If we are parsing value in ' (true) or " (false) boundaries
                 boolean quot = false;
@@ -131,17 +140,20 @@ public class TagParser {
 
                 for (int index = 0; index < params.length(); index++) {
                     char current = params.charAt(index);
+
                     if (mode == 0 && current == '=') {
                         key = params.substring(s, index);
                         mode = 1;
                         continue;
                     }
+
                     if (mode == 1 && (current == '"' || current == '\'')) {
                         quot = current == '\'';
                         s = index + 1;
                         mode = 2;
                         continue;
                     }
+
                     if (mode == 2 && current == (quot ? '\'' : '"')) {
                         tag.props.put(key.trim(), params.substring(s, index));
                         s = index + 1;
@@ -165,7 +177,7 @@ public class TagParser {
         prev += j + 1;
     }
 
-    static abstract interface TagHandler {
+    public static interface TagHandler {
         public void handle(Tag tag);
     }
 

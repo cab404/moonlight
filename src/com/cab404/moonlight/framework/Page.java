@@ -38,7 +38,6 @@ public abstract class Page extends Request implements ModularBlockParser.ParsedO
         bindParsers(modules);
 
         content.start();
-        parser.start();
     }
 
     @Override protected HttpRequestBase getRequest(AccessProfile profile) {
@@ -58,11 +57,15 @@ public abstract class Page extends Request implements ModularBlockParser.ParsedO
 
     @Override public void fetch(AccessProfile accessProfile) {
         super.fetch(accessProfile);
+
+        parser.run();
         try {
             content.join();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
+
+
 
 }

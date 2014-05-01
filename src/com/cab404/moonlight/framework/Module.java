@@ -4,7 +4,6 @@ import com.cab404.moonlight.parser.HTMLTree;
 import com.cab404.moonlight.parser.Tag;
 
 /**
- * This will replace parsers.
  * Represents raw-data -> data step. Should actually be named "extractor",
  * but who cares.
  *

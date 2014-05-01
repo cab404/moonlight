@@ -8,6 +8,8 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
+ * Simple module manager.
+ *
  * @author cab404
  */
 public class ModularBlockParser implements LevelAnalyzer.BlockHandler {
@@ -25,6 +27,7 @@ public class ModularBlockParser implements LevelAnalyzer.BlockHandler {
      * Binds new parsing module.
      *
      * @param id ID which will be used while returning object to handler.
+     * @see ParsedObjectHandler#handle(Object, int)
      */
     public void bind(Module module, int id) {
         handlers.add(new AbstractMap.SimpleEntry<>(module, id));
@@ -55,10 +58,16 @@ public class ModularBlockParser implements LevelAnalyzer.BlockHandler {
 
     }
 
+    /**
+     * Is there any handlers binded?
+     */
     public boolean isEmpty() {
         return handlers.isEmpty();
     }
 
+    /**
+     * Interface for handling parsed objects.
+     */
     public interface ParsedObjectHandler {
         public void handle(Object object, int key);
     }

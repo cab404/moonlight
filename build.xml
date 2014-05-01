@@ -14,6 +14,8 @@
         <mkdir dir="${build.dir}"/>
 
         <javac
+                debug="true"
+                debuglevel="lines,vars,source"
                 executable="${jdk.bin}"
                 destdir="${build.dir}"
                 srcdir="${src.dir}"
