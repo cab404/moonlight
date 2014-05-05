@@ -1,6 +1,7 @@
 package com.cab404.moonlight.parser;
 
 import com.cab404.moonlight.util.SU;
+import com.cab404.moonlight.util.exceptions.NotFoundFail;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -135,8 +136,8 @@ public class HTMLTree implements Iterable<Tag> {
      */
     public HTMLTree getTree(Tag opening) {
 
-        if (opening.isClosing()) throw new RuntimeException("Попытка достать парсер для закрывающего тега!");
-        if (opening.isStandalone()) throw new RuntimeException("Попытка достать парсер для standalone-тега!");
+        if (opening.isClosing()) throw new NotFoundFail("Попытка достать парсер для закрывающего тега!");
+        if (opening.isStandalone()) throw new NotFoundFail("Попытка достать парсер для standalone-тега!");
 
         return new HTMLTree(this, opening.index - start(), getClosingTag(opening) + 1);
     }
@@ -149,8 +150,8 @@ public class HTMLTree implements Iterable<Tag> {
     }
 
     public List<Tag> getTopChildren(Tag tag) {
-        if (tag.isClosing()) throw new RuntimeException("Попытка достать теги верхнего уровня для закрывающего тега!");
-        if (tag.isStandalone()) throw new RuntimeException("Попытка достать теги верхнего уровня для standalone-тега!");
+        if (tag.isClosing()) throw new NotFoundFail("Попытка достать теги верхнего уровня для закрывающего тега!");
+        if (tag.isStandalone()) throw new NotFoundFail("Попытка достать теги верхнего уровня для standalone-тега!");
 
 
         ArrayList<Tag> _return = new ArrayList<>();

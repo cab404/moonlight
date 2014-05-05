@@ -3,7 +3,7 @@ package com.cab404.moonlight.util.exceptions;
 /**
  * @author cab404
  */
-public class RequestFail extends MoonlightException {
+public class RequestFail extends MoonlightFail {
     public RequestFail() {
     }
     public RequestFail(String message) {

@@ -1,5 +1,7 @@
 package com.cab404.moonlight.util;
 
+import com.cab404.moonlight.util.exceptions.NotFoundFail;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -114,13 +116,13 @@ public class SU {
 
         int sIndex = source.indexOf(start);
         if (sIndex == -1) {
-            throw new RuntimeException("Error while parsing string " + source + ", no start position found.");
+            throw new NotFoundFail("Error while parsing string " + source + ", no start position found.");
         }
         sIndex += start.length();
 
         int eIndex = source.indexOf(end, sIndex);
         if (eIndex == -1) {
-            throw new RuntimeException("Error while parsing string " + source + ", no end position found.");
+            throw new NotFoundFail("Error while parsing string " + source + ", no end position found.");
         }
         return source.substring(sIndex, eIndex);
     }
@@ -130,12 +132,12 @@ public class SU {
     public static String bsub(String source, String end, String start) {
         int sIndex = source.lastIndexOf(start);
         if (sIndex == -1) {
-            throw new RuntimeException("Error while parsing string " + source + ", no start position found.");
+            throw new NotFoundFail("Error while parsing string " + source + ", no start position found.");
         }
 
         int eIndex = source.lastIndexOf(end, sIndex);
         if (eIndex == -1) {
-            throw new RuntimeException("Error while parsing string " + source + ", no end position found.");
+            throw new NotFoundFail("Error while parsing string " + source + ", no end position found.");
         }
         return source.substring(eIndex + end.length(), sIndex);
     }

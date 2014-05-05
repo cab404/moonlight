@@ -1,5 +1,9 @@
 package com.cab404.moonlight.facility;
 
+import com.cab404.moonlight.util.exceptions.LoadingFail;
+import com.cab404.moonlight.util.exceptions.ParseFail;
+import com.cab404.moonlight.util.exceptions.ResponseFail;
+import com.cab404.moonlight.util.exceptions.StreamDecodeFail;
 import org.apache.http.HttpResponse;
 
 import java.io.BufferedReader;
@@ -33,7 +37,7 @@ public class ResponseFactory {
             parser.finished();
 
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new LoadingFail(e);
         }
     }
 
@@ -58,7 +62,7 @@ public class ResponseFactory {
             parser.finished();
 
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new LoadingFail(e);
         }
     }
 
@@ -84,7 +88,7 @@ public class ResponseFactory {
             return page;
 
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new LoadingFail(e);
         }
     }
 
@@ -103,7 +107,7 @@ public class ResponseFactory {
             return page;
 
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new LoadingFail(e);
         }
     }
 
@@ -114,20 +118,20 @@ public class ResponseFactory {
 
         public void onResponseStart() {}
         public void onResponseFail(Throwable t) {
-            throw new RuntimeException(t);
+            throw new ResponseFail(t);
         }
         public void onResponseFinished() {}
 
         public void onLoadingStarted() {}
         public void onLoadingFail(Throwable t) {
-            throw new RuntimeException(t);
+            throw new LoadingFail(t);
         }
         public void onLoadingProgress(long loaded, long length) {}
         public void onLoadingFinished() {}
 
         public void onParseStarted() {}
         public void onParseFail(Throwable t) {
-            throw new RuntimeException(t);
+            throw new ParseFail(t);
         }
         public void onParseFinished() {}
 
@@ -150,7 +154,7 @@ public class ResponseFactory {
                 return response.getEntity().getContent();
 
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new StreamDecodeFail(e);
         }
 
         return null;

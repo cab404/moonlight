@@ -1,6 +1,7 @@
 package com.cab404.moonlight.util;
 
 import com.cab404.moonlight.framework.AccessProfile;
+import com.cab404.moonlight.util.exceptions.ResponseFail;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpRequestBase;
@@ -33,7 +34,7 @@ public class RU {
 
             return response;
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new ResponseFail(e);
         }
     }
 
