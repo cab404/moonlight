@@ -18,7 +18,7 @@ import java.util.Map;
  */
 public class AccessProfile {
 
-    public HashMap<String, String> cookies;
+    public HashMap<String, String> cookies = new HashMap<>();
     private HttpHost host;
 
     /**
@@ -48,7 +48,6 @@ public class AccessProfile {
      * Creates AccessProfile from hostname and port
      */
     public AccessProfile(String host, int port) {
-        this.cookies = new HashMap<>();
         this.host = new HttpHost(host, port);
     }
 
