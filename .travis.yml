@@ -2,4 +2,4 @@ language: java
 jdk: openjdk7
 
 script:
-    ant build.xml
+    ant
