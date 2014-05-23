@@ -1,5 +1,7 @@
 Moonlight
 =========
+[![Build Status](https://travis-ci.org/cab404/moonlight.svg?branch=dev)](https://travis-ci.org/cab404/moonlight)
+
 Just a little easy-to-use framework for writing interaction libraries, e.g for Android clients.
 
 ###Usage
@@ -39,7 +41,7 @@ public class LSKeyModule extends ModuleImpl<String> {
         return "script".equals(tag.name);
     }
     
-    @Override public LivestreetKey extractData(HTMLTree block, AccessProfile profile) {
+    @Override public String extractData(HTMLTree block, AccessProfile profile) {
 // Get all data from block starting with first tag 
         String js = block.getContents(0); 
         
