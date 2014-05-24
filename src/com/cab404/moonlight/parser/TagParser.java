@@ -45,8 +45,9 @@ public class TagParser {
             TAG_START = "<",
             TAG_END = ">";
 
-    int prev = 0;
-    int i, j = 0;
+    private int prev = 0;
+    private int i, j = 0;
+    private boolean comment = false;
 
     /**
      * Takes a chunk of text, appends it to buffer and full HTML, then tries to find some new tags.
@@ -92,17 +93,26 @@ public class TagParser {
 
 
             if (inner.startsWith(COMM_START)) {
+                comment = true;
+            }
+
+            if (comment) {
+
                 tag.type = Type.COMMENT;
                 tag.name = COMM_START;
 
                 j = buffer.indexOf(COMM_END, i);
+
                 if (j == -1) break;
+                comment = false;
+
                 j += COMM_START.length();
                 tag.text = buffer.substring(i, j);
                 j--;
 
                 handler.handle(tag);
                 step();
+
                 continue;
             }
 
