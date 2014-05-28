@@ -110,7 +110,7 @@ public class HTMLTree implements Iterable<Tag> {
     public int getClosingTag(Tag tag) {
 
         int index = getIndexForTag(tag) + 1, level = getLevel(tag);
-        for (; index < end(); index++) {
+        for (; index <= end(); index++) {
 
             Tag check = get(index);
             int c_level = getLevel(check);
@@ -159,7 +159,7 @@ public class HTMLTree implements Iterable<Tag> {
 
         int index = getIndexForTag(tag) + 1, level = getLevel(tag);
 
-        for (; index < end(); index++) {
+        for (; index <= end(); index++) {
 
             Tag check = get(index);
             int c_level = getLevel(check);
