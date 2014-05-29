@@ -191,6 +191,14 @@ public class LevelAnalyzer {
     }
 
     /**
+     * Fixes whole tree.
+     */
+    public void fix() {
+        fixLyingLoners(0, size());
+        fixIndents(0, size());
+    }
+
+    /**
      * Builds a tree.
      */
     @Override public String toString() {
