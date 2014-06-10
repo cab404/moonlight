@@ -40,14 +40,13 @@ public class TagParser {
     }
 
     private static final String
-            COMM_START = "!--",
+            COMM_START = "<!--",
             COMM_END = "-->",
             TAG_START = "<",
             TAG_END = ">";
 
     private int prev = 0;
-    private int i, j = 0;
-    private boolean comment = false;
+    private int j = 0;
 
     /**
      * Takes a chunk of text, appends it to buffer and full HTML, then tries to find some new tags.
@@ -65,17 +64,41 @@ public class TagParser {
      * to work with small buffer instead of full page. I might be terribly wrong.
      * <br/>
      * <br/><strong>Q</strong>: Can I feed it with raw bytes?
-     * <br/><strong>A</strong>: I newer tried, but I suppose it will become sentient afterwards.
+     * <br/><strong>A</strong>: I never tried, but I suppose it will become sentient afterwards.
      */
     public synchronized void process(String chunk) {
         buffer.append(chunk);
         full_data.append(chunk);
 
+        // Deleting all comments as they come. Nopony needs them. Useless.
+        int comment_start;
+
+        while ((comment_start = buffer.indexOf(COMM_START)) != -1) {
+
+            int comment_end = buffer.indexOf(COMM_END, comment_start);
+
+            if (comment_end == -1)
+                return;
+
+            comment_end += COMM_END.length();
+
+            // Oh well, buck everything. It's midnight, baby. Deleting em' all and everythere!
+            full_data.delete(prev + comment_start, prev + comment_end);
+
+            buffer.delete(comment_start, comment_end);
+        }
+
+
         while (true) {
+            // Limiting everything to start of comment, if any. Comments are painful.
+            int e_index = buffer.indexOf(COMM_START);
+            int i;
 
             i = buffer.indexOf(TAG_START, 0);
             j = buffer.indexOf(TAG_END, i);
-            if (i == -1 || j == -1) break;
+
+            if (i == -1 || (e_index != -1 && i > e_index)) break;
+            if (j == -1 || (e_index != -1 && j >= e_index)) break;
 
             Tag tag = new Tag();
             tag.type = Type.OPENING;
@@ -91,32 +114,6 @@ public class TagParser {
                 continue;
             }
 
-
-            if (inner.startsWith(COMM_START)) {
-                comment = true;
-            }
-
-            if (comment) {
-
-                tag.type = Type.COMMENT;
-                tag.name = COMM_START;
-
-                j = buffer.indexOf(COMM_END, i);
-
-                if (j == -1) break;
-                comment = false;
-
-                j += COMM_START.length();
-                tag.text = buffer.substring(i, j);
-                j--;
-
-                handler.handle(tag);
-                step();
-
-                continue;
-            }
-
-
             if (inner.charAt(0) == '/') {
                 tag.type = Type.CLOSING;
                 inner = buffer.substring(i + 2, j);
@@ -126,19 +123,19 @@ public class TagParser {
             }
 
 
-            List<String> name_and_everything_else = SU.charSplit(inner, 2, ' ');
+            List<String> name_and_everything_else = SU.charSplit(inner.trim(), 2, ' ');
             tag.name = name_and_everything_else.get(0);
 
-            if (tag.name.charAt(0) == '!')
-                tag.type = Type.COMMENT; // Handling !doctype and others.
+            if (tag.name.isEmpty() || tag.name.charAt(0) == '!') // Handling !doctype
+                tag.type = Type.COMMENT;
 
             if (name_and_everything_else.size() == 2) {
                 // Parsing properties.
                 String params = name_and_everything_else.get(1).trim();
                 String key = null;
 
-                int s = 0;
                 // Current temporary position.
+                int s = 0;
 
                 // If we are parsing value in ' (true) or " (false) boundaries
                 boolean quot = false;
@@ -176,7 +173,10 @@ public class TagParser {
 
             step();
             handler.handle(tag);
+
         }
+
+
     }
 
     /**

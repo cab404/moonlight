@@ -15,7 +15,7 @@ public class LevelAnalyzer {
     private BlockHandler handler;
 
 
-    LevelAnalyzer(CharSequence text) {
+    public LevelAnalyzer(CharSequence text) {
         tags = new ArrayList<>();
         linked = text;
     }
@@ -173,7 +173,7 @@ public class LevelAnalyzer {
         return null;
     }
 
-    void fixIndents(int start, int end) {
+    private void fixIndents(int start, int end) {
         int layer = 0;
 
         for (int i = start; i < end; i++) {

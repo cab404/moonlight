@@ -27,7 +27,7 @@ public class Log {
      * Sends warning to current logger.
      */
     public static void w(Object obj) {
-        logger.error(obj == null ? null : obj.toString() + "\n");
+        logger.error(obj == null ? null : obj.toString());
     }
 
     /**
