@@ -82,10 +82,14 @@ public class TagParser {
 
             comment_end += COMM_END.length();
 
-            // Oh well, buck everything. It's midnight, baby. Deleting em' all and everythere!
-            full_data.delete(prev + comment_start, prev + comment_end);
+            //// Oh well, buck everything. It's midnight, baby. Deleting em' all and everythere!
+            // Don't ask me, why whitespaces. Just. Don't. It is a representation of comment space in full data,
+            // so comment will be treated as whitespaces in parsing, and will be left in it's true form in text.
+            for (int i = comment_start; i < comment_end; i++)
+                buffer.setCharAt(i, ' ');
 
-            buffer.delete(comment_start, comment_end);
+//            full_data.delete(prev + comment_start, prev + comment_end);
+//            buffer.delete(comment_start, comment_end);
         }
 
 
