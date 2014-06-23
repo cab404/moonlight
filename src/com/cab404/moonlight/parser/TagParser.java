@@ -128,7 +128,7 @@ public class TagParser {
 
 
             List<String> name_and_everything_else = SU.charSplit(inner.trim(), 2, ' ');
-            tag.name = name_and_everything_else.get(0);
+            tag.name = name_and_everything_else.get(0).trim();
 
             if (tag.name.isEmpty() || tag.name.charAt(0) == '!') // Handling !doctype
                 tag.type = Type.COMMENT;
