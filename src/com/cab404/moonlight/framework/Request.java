@@ -7,6 +7,8 @@ import com.cab404.moonlight.util.exceptions.RequestFail;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpRequestBase;
 
+import java.nio.CharBuffer;
+
 /**
  * Base class for the requests.
  *
@@ -18,13 +20,14 @@ public abstract class Request implements ResponseFactory.Parser {
     protected abstract HttpRequestBase getRequest(AccessProfile accessProfile);
 
     /**
-     * Preparations before receiving data into {@link Request#line(String)}
+     * Preparations before receiving data into {@link com.cab404.moonlight.facility.ResponseFactory.Parser#part(java.nio.CharBuffer)}
      */
     protected void prepare(AccessProfile accessProfile) {}
     /**
      * It will receive data until we out of it or false is returned.
+     * @param part
      */
-    @Override public boolean line(String line) {return false;}
+    @Override public boolean part(CharBuffer part) {return false;}
     /**
      * Invoked after data loading finished.
      */

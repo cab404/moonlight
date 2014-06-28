@@ -10,6 +10,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.CharBuffer;
 import java.util.zip.DeflaterInputStream;
 import java.util.zip.GZIPInputStream;
 
@@ -20,8 +21,10 @@ import java.util.zip.GZIPInputStream;
  */
 public class ResponseFactory {
 
+    private static final int DEFAULT_CHARACTER_BUFFER_SIZE = 512;
+
     public static interface Parser {
-        public boolean line(String line);
+        public boolean part(CharBuffer part);
         public void finished();
     }
 
@@ -32,8 +35,8 @@ public class ResponseFactory {
         try {
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(getRightInputStream(response)));
-            String line;
-            while ((line = reader.readLine()) != null && parser.line(line)) ;
+            CharBuffer buffer = CharBuffer.allocate(DEFAULT_CHARACTER_BUFFER_SIZE);
+            while (reader.read(buffer) != 0 && parser.part((CharBuffer) buffer.flip())) ;
             parser.finished();
 
         } catch (IOException e) {
@@ -48,15 +51,18 @@ public class ResponseFactory {
         try {
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(getRightInputStream(response)));
-            String line;
 
             long length = response.getEntity().getContentLength();
             if (length == -1) length = 1;
             long loaded = 0;
 
-            while ((line = reader.readLine()) != null) {
-                parser.line(line);
-                loaded += line.length();
+            CharBuffer buffer = CharBuffer.allocate(DEFAULT_CHARACTER_BUFFER_SIZE);
+
+            while (reader.read(buffer) != 0) {
+                buffer.flip();
+                parser.part(buffer);
+                loaded += buffer.limit();
+                buffer.reset();
                 status.onLoadingProgress(loaded, length);
             }
             parser.finished();
@@ -70,26 +76,19 @@ public class ResponseFactory {
      * @see String read(HttpResponse, Parser)
      */
     public static String read(HttpResponse response, StatusListener status) {
-        try {
 
-            BufferedReader reader = new BufferedReader(new InputStreamReader(getRightInputStream(response)));
-            String line, page = "";
+        final StringBuilder data = new StringBuilder();
 
-            long length = response.getEntity().getContentLength();
-            if (length == -1) length = 1;
-            long loaded = 0;
-
-            while ((line = reader.readLine()) != null) {
-                page += line + "\n";
-                loaded += line.length() + 1;
-                status.onLoadingProgress(loaded, length);
+        read(response, new Parser() {
+            @Override public boolean part(CharBuffer part) {
+                data.append(part);
+                return true;
             }
+            @Override public void finished() {
 
-            return page;
-
-        } catch (IOException e) {
-            throw new LoadingFail(e);
-        }
+            }
+        }, status);
+        return data.toString();
     }
 
     /**

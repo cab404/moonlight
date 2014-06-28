@@ -2,6 +2,7 @@ package com.cab404.moonlight.parser;
 
 import com.cab404.moonlight.facility.ResponseFactory;
 
+import java.nio.CharBuffer;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -46,7 +47,7 @@ public class HTMLTagParserThread extends Thread implements ResponseFactory.Parse
                 if (line == null)
                     break;
 
-                parser.process(line + "\n");
+                parser.process(line);
 
 
             }
@@ -57,8 +58,8 @@ public class HTMLTagParserThread extends Thread implements ResponseFactory.Parse
 
     }
 
-    @Override public boolean line(String line) {
-        queue.add(line);
+    @Override public boolean part(CharBuffer part) {
+        queue.add(part.toString());
 
         return true;
     }

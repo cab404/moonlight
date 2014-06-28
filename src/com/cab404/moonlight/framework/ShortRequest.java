@@ -1,5 +1,7 @@
 package com.cab404.moonlight.framework;
 
+import java.nio.CharBuffer;
+
 /**
  * Simple request for a short string.
  *
@@ -13,8 +15,8 @@ public abstract class ShortRequest extends Request {
 
     {data = new StringBuilder();}
 
-    @Override public boolean line(String line) {
-        data.append(line);
+    @Override public boolean part(CharBuffer part) {
+        data.append(part);
         return true;
     }
 

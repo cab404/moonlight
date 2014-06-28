@@ -5,6 +5,8 @@ import com.cab404.moonlight.parser.HTMLAnalyzerThread;
 import com.cab404.moonlight.parser.HTMLTagParserThread;
 import org.apache.http.client.methods.HttpRequestBase;
 
+import java.nio.CharBuffer;
+
 /**
  * Represents web->raw-data step, and wrapper for raw-data->data.
  *
@@ -47,8 +49,8 @@ public abstract class Page extends Request implements ModularBlockParser.ParsedO
         return RequestBuilder.get(url, profile).build();
     }
 
-    @Override public boolean line(String line) {
-        return parser.line(line) && !modules.isEmpty();
+    @Override public boolean part(CharBuffer part) {
+        return parser.part(part) && !modules.isEmpty();
     }
 
     @Override public void finished() {
