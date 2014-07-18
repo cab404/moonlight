@@ -1,43 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project name="libtabun" default="jar">
+<project name="moonlight" default="def">
     <property file="build.properties"/>
 
+    <target name="def" depends="jar-all, clean"/>
     <target name="clean">
         <delete dir="${build.dir}"/>
     </target>
 
-    <target name="build" depends="clean">
+    <target name="build-clean">
 
+        <delete dir="${build.dir}"/>
         <mkdir dir="${build.dir}"/>
 
         <javac
+                debug="true"
+                debuglevel="lines,vars,source"
                 executable="${jdk.bin}"
-                srcdir="${src.dir}"
                 destdir="${build.dir}"
+                srcdir="${src.dir}"
                 >
 
             <include name="**/*.java"/>
-            <exclude name="**/example/*"/>
 
             <classpath>
-                <fileset dir="${lib.dir}"/>
+                <fileset dir="${libs.dir}"/>
             </classpath>
         </javac>
 
     </target>
 
-    <target name="jar-lib" depends="build">
-        <jar destfile="../sweetieBot/libs/libtabun.jar" basedir="${build.dir}"/>
+    <target name="jar-lib" depends="build-clean">
+        <jar destfile="${out.dir}/moonlight.jar" basedir="${build.dir}"/>
     </target>
 
     <target name="jar-sources">
-        <jar destfile="libtabun-sources.jar" basedir="${src.dir}">
-            <exclude name="**/example/*"/>
+        <jar destfile="${out.dir}/moonlight-sources.jar" basedir="${src.dir}">
+            <include name="**/*.java"/>
         </jar>
     </target>
 
-    <target name="jar" depends="jar-lib, jar-sources">
-    </target>
+    <target name="jar-all" depends="jar-lib, jar-sources"/>
 
 </project>
