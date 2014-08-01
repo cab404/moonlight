@@ -5,10 +5,7 @@ import com.cab404.moonlight.util.exceptions.NotFoundFail;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 /**
  * String utils.
@@ -58,55 +55,21 @@ public class SU {
 	 * Returns true if check contains symbol ch
 	 */
 	public static boolean contains(char[] check, char ch) {
-		for (char curr : check)
-			if (curr == ch) return true;
+		for (int i = 0; i < check.length; i++)
+			if (check[i] == ch)
+				return true;
 		return false;
 	}
 
-	/**
-	 * Splits string using any of chars from "chars"
-	 * For instance, call<br/>
-	 * charSplit("test test, test.test", " .,") <br/>
-	 * will return you [test, test, test, test]
-	 */
-	public static List<String> charSplit(String source, char... chars) {
-		ArrayList<String> out = new ArrayList<>();
-		int last = 0;
-
-		for (int i = 0; i < source.length(); i++) {
-			if (contains(chars, source.charAt(i))) {
-				out.add(source.substring(last, i));
-				last = i + 1;
-			}
-		}
-
-		out.add(source.substring(last));
-		return out;
+	public static List<String> charSplit(String source, char ch) {
+		return charSplit(source, source.length() + 1, ch);
 	}
 
 	/**
-	 * Splits string using any of chars from "chars"
-	 * For instance, call<br/>
-	 * charSplit("test test, test.test", 2, " .,") <br/>
-	 * will return you ["test", "test, test.test"]
+	 * Splits string using ch with limit of parts
 	 */
-	public static List<String> charSplit(String source, int limit, char... chars) {
-		ArrayList<String> out = new ArrayList<>();
-		int last = 0;
-
-		for (int i = 0; i < source.length(); i++) {
-			if (contains(chars, source.charAt(i))) {
-				out.add(source.substring(last, i));
-				last = i + 1;
-
-				if (out.size() + 1 == limit)
-					break;
-
-			}
-		}
-
-		out.add(source.substring(last));
-		return out;
+	public static List<String> charSplit(String source, int limit, char ch) {
+		return new ArrayList<>(Arrays.asList(splitToArray(source, limit, ch)));
 	}
 
 
@@ -116,24 +79,8 @@ public class SU {
 	 * charSplit("test test, test.test", " .,") <br/>
 	 * will return you [test, test, test, test]
 	 */
-	public static String[] splitToArray(String source, char... chars) {
-		int occurences = 0;
-		for (char ch : chars) {
-			occurences += count(source, ch);
-		}
-		String[] out = new String[occurences + 1];
-		int last = 0;
-		int array_index = 0;
-
-		for (int i = 0; i < source.length(); i++) {
-			if (contains(chars, source.charAt(i))) {
-				out[array_index++] = source.substring(last, i);
-				last = i + 1;
-			}
-		}
-
-		out[array_index] = source.substring(last);
-		return out;
+	public static String[] splitToArray(String source, char ch) {
+		return splitToArray(source, source.length() + 1, ch);
 	}
 
 
@@ -143,18 +90,17 @@ public class SU {
 	 * charSplit("test test, test.test", 2, " .,") <br/>
 	 * will return you ["test", "test, test.test"]
 	 */
-	public static String[] splitToArray(String source, int limit, char... chars) {
+	public static String[] splitToArray(String source, int limit, char ch) {
 		int occurences = 0;
 
-		for (char ch : chars)
-			occurences += count(source, ch);
+		occurences += count(source, ch);
 
 		String[] out = new String[(occurences + 1) > limit ? limit : (occurences + 1)];
 		int last = 0;
 		int array_index = 0;
 
 		for (int i = 0; i < source.length(); i++) {
-			if (contains(chars, source.charAt(i))) {
+			if (ch == source.charAt(i)) {
 				out[array_index++] = source.substring(last, i);
 				last = i + 1;
 
@@ -167,6 +113,40 @@ public class SU {
 		out[array_index] = source.substring(last);
 
 		return out;
+	}
+
+
+	public static int count(CharSequence seq, char ch) {
+		int counter = 0;
+		for (int i = 0; i < seq.length(); i++)
+			if (seq.charAt(i) == ch)
+				counter++;
+		return counter;
+	}
+
+
+	public static boolean fast_match(String regex, String data) {
+		int count = count(regex, '*');
+
+		if (count == 0)
+			return data.equals(regex);
+
+		String[] strings = splitToArray(regex, '*');
+
+		if (!(data.startsWith(strings[0])) && data.endsWith(strings[strings.length - 1]))
+			return false;
+
+		int s, f = 0;
+
+		for (String str : strings) {
+			s = data.indexOf(str, f);
+			f = s + str.length();
+
+			if (s == -1)
+				return false;
+		}
+
+		return true;
 	}
 
 
@@ -288,46 +268,6 @@ public class SU {
 
 		}
 		return data.toString();
-	}
-
-	/**
-	 * Counts number of ch occurrences in seq
-	 */
-	public static int count(CharSequence seq, char ch) {
-		int counter = 0;
-		for (int i = 0; i < seq.length(); i++)
-			if (seq.charAt(i) == ch)
-				counter++;
-		return counter;
-	}
-
-	/**
-	 * Works with patterns like asd*g, also is pretty fast.
-	 */
-	public static boolean fast_match(String regex, String data) {
-		int count = count(regex, '*');
-
-		if (count == 0)
-			return data.equals(regex);
-
-		String[] strings = splitToArray(regex, '*');
-
-		if (!(data.startsWith(strings[0])) && data.endsWith(strings[strings.length - 1]))
-			return false;
-
-		int s, f;
-
-		for (String str : strings) {
-			s = data.indexOf(str, 0);
-			f = s + str.length();
-
-			if (s == -1)
-				return false;
-
-			data = data.substring(0, s) + data.substring(f);
-		}
-
-		return true;
 	}
 
 	/**
