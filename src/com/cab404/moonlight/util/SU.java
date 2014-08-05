@@ -189,7 +189,7 @@ public class SU {
 		try {
 			return URLEncoder.encode(toConvert, "UTF-8");
 		} catch (UnsupportedEncodingException e) {
-			return null;
+			throw new RuntimeException("WAT? WE CANNOT UTF-8? IMPOSSIBRU!", e);
 		}
 	}
 	/**
@@ -199,7 +199,7 @@ public class SU {
 		try {
 			return URLDecoder.decode(toConvert, "UTF-8");
 		} catch (UnsupportedEncodingException e) {
-			return null;
+			throw new RuntimeException("WAT? WE CANNOT UTF-8? IMPOSSIBRU!", e);
 		}
 	}
 
@@ -216,58 +216,169 @@ public class SU {
 		return out.toString();
 	}
 
-	private static String[][] html_entities = {
-			{"&quot;", "\""},
-			{"&rlm;", " ‏"},
-			{"&amp;", "&"},
-			{"&ndash;", "–"},
-			{"&lt;", "<"},
-			{"&mdash;", "—"},
-			{"&gt;", ">"},
-			{"&lsquo;", "‘"},
-			{"&OElig;", "Œ"},
-			{"&rsquo;", "’"},
-			{"&oelig;", "œ"},
-			{"&sbquo;", "‚"},
-			{"&Scaron;", "Š"},
-			{"&ldquo;", "“"},
-			{"&scaron;", "š"},
-			{"&rdquo;", "”"},
-			{"&Yuml;", "Ÿ"},
-			{"&bdquo;", "„"},
-			{"&circ;", "ˆ"},
-			{"&dagger;", "†"},
-			{"&tilde;", "˜"},
-			{"&Dagger;", "‡"},
-			{"&ensp;", " "},
-			{"&permil;", "‰"},
-			{"&emsp;", " "},
-			{"&lsaquo;", "‹"},
-			{"&thinsp;", " "},
-			{"&rsaquo;", "›"},
-			{"&zwnj;", " "},
-			{"&euro;", "€"},
-			{"&zwj;", " "},
-			{"&lrm;", " "},
-			{"&#039;", "'"}
-	};
+
+	public static final HashMap<String, Character> HTML_ESCAPE_SEQUENCES = new HashMap<>();
+	static {
+		HTML_ESCAPE_SEQUENCES.put("Aacute", 'Á');
+		HTML_ESCAPE_SEQUENCES.put("aacute", 'á');
+		HTML_ESCAPE_SEQUENCES.put("Acirc", 'Â');
+		HTML_ESCAPE_SEQUENCES.put("acirc", 'â');
+		HTML_ESCAPE_SEQUENCES.put("acute", '´');
+		HTML_ESCAPE_SEQUENCES.put("AElig", 'Æ');
+		HTML_ESCAPE_SEQUENCES.put("aelig", 'æ');
+		HTML_ESCAPE_SEQUENCES.put("Agrave", 'À');
+		HTML_ESCAPE_SEQUENCES.put("agrave", 'à');
+		HTML_ESCAPE_SEQUENCES.put("amp", '&');
+		HTML_ESCAPE_SEQUENCES.put("Aring", 'Å');
+		HTML_ESCAPE_SEQUENCES.put("aring", 'å');
+		HTML_ESCAPE_SEQUENCES.put("Atilde", 'Ã');
+		HTML_ESCAPE_SEQUENCES.put("atilde", 'ã');
+		HTML_ESCAPE_SEQUENCES.put("Auml", 'Ä');
+		HTML_ESCAPE_SEQUENCES.put("auml", 'ä');
+		HTML_ESCAPE_SEQUENCES.put("brvbar", '¦');
+		HTML_ESCAPE_SEQUENCES.put("Ccedil", 'Ç');
+		HTML_ESCAPE_SEQUENCES.put("ccedil", 'ç');
+		HTML_ESCAPE_SEQUENCES.put("cedil", '¸');
+		HTML_ESCAPE_SEQUENCES.put("cent", '¢');
+		HTML_ESCAPE_SEQUENCES.put("copy", '©');
+		HTML_ESCAPE_SEQUENCES.put("curren", '¤');
+		HTML_ESCAPE_SEQUENCES.put("deg", '°');
+		HTML_ESCAPE_SEQUENCES.put("divide", '÷');
+		HTML_ESCAPE_SEQUENCES.put("Eacute", 'É');
+		HTML_ESCAPE_SEQUENCES.put("eacute", 'é');
+		HTML_ESCAPE_SEQUENCES.put("Ecirc", 'Ê');
+		HTML_ESCAPE_SEQUENCES.put("ecirc", 'ê');
+		HTML_ESCAPE_SEQUENCES.put("Egrave", 'È');
+		HTML_ESCAPE_SEQUENCES.put("egrave", 'è');
+		HTML_ESCAPE_SEQUENCES.put("ETH", 'Ð');
+		HTML_ESCAPE_SEQUENCES.put("eth", 'ð');
+		HTML_ESCAPE_SEQUENCES.put("Euml", 'Ë');
+		HTML_ESCAPE_SEQUENCES.put("euml", 'ë');
+		HTML_ESCAPE_SEQUENCES.put("euro", '€');
+		HTML_ESCAPE_SEQUENCES.put("frac12", '½');
+		HTML_ESCAPE_SEQUENCES.put("frac14", '¼');
+		HTML_ESCAPE_SEQUENCES.put("frac34", '¾');
+		HTML_ESCAPE_SEQUENCES.put("gt", '>');
+		HTML_ESCAPE_SEQUENCES.put("Iacute", 'Í');
+		HTML_ESCAPE_SEQUENCES.put("iacute", 'í');
+		HTML_ESCAPE_SEQUENCES.put("Icirc", 'Î');
+		HTML_ESCAPE_SEQUENCES.put("icirc", 'î');
+		HTML_ESCAPE_SEQUENCES.put("iexcl", '¡');
+		HTML_ESCAPE_SEQUENCES.put("Igrave", 'Ì');
+		HTML_ESCAPE_SEQUENCES.put("igrave", 'ì');
+		HTML_ESCAPE_SEQUENCES.put("iquest", '¿');
+		HTML_ESCAPE_SEQUENCES.put("Iuml", 'Ï');
+		HTML_ESCAPE_SEQUENCES.put("iuml", 'ï');
+		HTML_ESCAPE_SEQUENCES.put("lt", '<');
+		HTML_ESCAPE_SEQUENCES.put("macr", '¯');
+		HTML_ESCAPE_SEQUENCES.put("micro", 'µ');
+		HTML_ESCAPE_SEQUENCES.put("middot", '·');
+		HTML_ESCAPE_SEQUENCES.put("nbsp", ' ');
+		HTML_ESCAPE_SEQUENCES.put("not", '¬');
+		HTML_ESCAPE_SEQUENCES.put("Ntilde", 'Ñ');
+		HTML_ESCAPE_SEQUENCES.put("ntilde", 'ñ');
+		HTML_ESCAPE_SEQUENCES.put("Oacute", 'Ó');
+		HTML_ESCAPE_SEQUENCES.put("oacute", 'ó');
+		HTML_ESCAPE_SEQUENCES.put("Ocirc", 'Ô');
+		HTML_ESCAPE_SEQUENCES.put("ocirc", 'ô');
+		HTML_ESCAPE_SEQUENCES.put("Ograve", 'Ò');
+		HTML_ESCAPE_SEQUENCES.put("ograve", 'ò');
+		HTML_ESCAPE_SEQUENCES.put("ordf", 'ª');
+		HTML_ESCAPE_SEQUENCES.put("ordm", 'º');
+		HTML_ESCAPE_SEQUENCES.put("Oslash", 'Ø');
+		HTML_ESCAPE_SEQUENCES.put("oslash", 'ø');
+		HTML_ESCAPE_SEQUENCES.put("Otilde", 'Õ');
+		HTML_ESCAPE_SEQUENCES.put("otilde", 'õ');
+		HTML_ESCAPE_SEQUENCES.put("Ouml", 'Ö');
+		HTML_ESCAPE_SEQUENCES.put("ouml", 'ö');
+		HTML_ESCAPE_SEQUENCES.put("para", '¶');
+		HTML_ESCAPE_SEQUENCES.put("plusmn", '±');
+		HTML_ESCAPE_SEQUENCES.put("pound", '£');
+		HTML_ESCAPE_SEQUENCES.put("quot", '"');
+		HTML_ESCAPE_SEQUENCES.put("raquo", '»');
+		HTML_ESCAPE_SEQUENCES.put("reg", '®');
+		HTML_ESCAPE_SEQUENCES.put("sect", '§');
+		HTML_ESCAPE_SEQUENCES.put("shy", '\u00AD');
+		HTML_ESCAPE_SEQUENCES.put("sup1", '¹');
+		HTML_ESCAPE_SEQUENCES.put("sup2", '²');
+		HTML_ESCAPE_SEQUENCES.put("sup3", '³');
+		HTML_ESCAPE_SEQUENCES.put("szlig", 'ß');
+		HTML_ESCAPE_SEQUENCES.put("THORN", 'Þ');
+		HTML_ESCAPE_SEQUENCES.put("thorn", 'þ');
+		HTML_ESCAPE_SEQUENCES.put("times", '×');
+		HTML_ESCAPE_SEQUENCES.put("Uacute", 'Ú');
+		HTML_ESCAPE_SEQUENCES.put("uacute", 'ú');
+		HTML_ESCAPE_SEQUENCES.put("Ucirc", 'Û');
+		HTML_ESCAPE_SEQUENCES.put("ucirc", 'û');
+		HTML_ESCAPE_SEQUENCES.put("Ugrave", 'Ù');
+		HTML_ESCAPE_SEQUENCES.put("ugrave", 'ù');
+		HTML_ESCAPE_SEQUENCES.put("uml", '¨');
+		HTML_ESCAPE_SEQUENCES.put("Uuml", 'Ü');
+		HTML_ESCAPE_SEQUENCES.put("uuml", 'ü');
+		HTML_ESCAPE_SEQUENCES.put("Yacute", 'Ý');
+		HTML_ESCAPE_SEQUENCES.put("yacute", 'ý');
+		HTML_ESCAPE_SEQUENCES.put("yen", '¥');
+
+		HTML_ESCAPE_SEQUENCES.put("rarr", '→');
+		HTML_ESCAPE_SEQUENCES.put("larr", '←');
+	}
 
 	/**
 	 * Decodes HTML entities.
 	 */
 	public static String deEntity(String in) {
 		StringBuilder data = new StringBuilder(in);
-		for (String[] replace : html_entities) {
-			String a = replace[0];
-			String b = replace[1];
 
-			int i;
-			while ((i = data.indexOf(a)) != -1) {
-				data.replace(i, i + a.length(), b);
-			}
+		int index = 0;
+		int end_index = 0;
+
+		while ((index = indexOf('&', data, index)) != -1) {
+
+			end_index = indexOf(';', data, index);
+
+			if (end_index == -1) break;
+
+			String inner = data.substring(index + 1, end_index);
+
+			// Если это числовой тег (?), то попытаемся его воспроизвести.
+			if (inner.startsWith("#"))
+				try {
+
+					char uni = (char) Integer.parseInt(inner.substring(1), 16);
+
+					data.replace(index, end_index + 1, String.valueOf(uni));
+
+				} catch (NumberFormatException | IndexOutOfBoundsException e) {
+
+					index++;
+
+				}
+			else if (HTML_ESCAPE_SEQUENCES.containsKey(inner)) {
+
+				data.replace(index, end_index + 1, String.valueOf(HTML_ESCAPE_SEQUENCES.get(inner)));
+
+			} else index++;
 
 		}
+
 		return data.toString();
+	}
+
+	public static void reEntity(String in) {
+		StringBuilder data = new StringBuilder(in);
+
+		int index = 0;
+		for (Map.Entry<String, Character> e : HTML_ESCAPE_SEQUENCES.entrySet()) {
+			while ((index = indexOf(e.getValue(), data, index)) != -1)
+				data.replace(index, index + 1, e.getKey());
+			index = 0;
+		}
+	}
+
+	public static int indexOf(char ch, CharSequence seq, int start) {
+		for (int i = start; i < seq.length(); i++)
+			if (seq.charAt(i) == ch) return i;
+		return -1;
 	}
 
 	/**
