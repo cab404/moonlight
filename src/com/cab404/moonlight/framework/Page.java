@@ -66,7 +66,7 @@ public abstract class Page extends Request implements ModularBlockParser.ParsedO
 	}
 
 	@Override public boolean part(CharBuffer part) {
-		return receiver.part(part) && !modules.isEmpty();
+		return !isCancelled() && receiver.part(part) && !modules.isEmpty();
 	}
 
 	@Override public void finished() {
