@@ -183,7 +183,9 @@ public class HTMLTree implements Iterable<Tag> {
 
 	@Override
 	public String toString() {
-		StringBuilder out = new StringBuilder();
+		if (size() == 0) return html.toString();
+
+		StringBuilder out = new StringBuilder(get(0).start != 0 ? html.subSequence(0, get(0).start) + "\n" : "");
 		int shift = getLevel(0);
 
 		int end = -1;
