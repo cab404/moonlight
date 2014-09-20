@@ -321,6 +321,7 @@ public class SU {
 
 		HTML_ESCAPE_SEQUENCES.put("rarr", '→');
 		HTML_ESCAPE_SEQUENCES.put("larr", '←');
+		HTML_ESCAPE_SEQUENCES.put("apos", '\'');
 	}
 
 	/**
@@ -345,6 +346,7 @@ public class SU {
 				try {
 
 					char uni = (char) Integer.parseInt(inner.substring(1), 16);
+					uni -= 18;
 
 					data.replace(index, end_index + 1, String.valueOf(uni));
 
