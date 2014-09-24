@@ -25,7 +25,7 @@ public abstract class Request implements ResponseFactory.Parser {
 	}
 
 	public boolean isCancelled() {
-		return cancelled;
+		return cancelled || Thread.interrupted();
 	}
 
 	protected abstract HttpRequestBase getRequest(AccessProfile accessProfile);
@@ -58,20 +58,22 @@ public abstract class Request implements ResponseFactory.Parser {
 
 	}
 
-	protected void fetch(AccessProfile profile) {
+	public void fetch(AccessProfile profile) {
 		HttpRequestBase request = getRequest(profile);
 		HttpResponse response;
 
 		try {
 			do {
+				// Putting after all time consuming operations and possible overrides.
+				if (isCancelled()) return;
 				response = RU.exec(request, profile, false);
-				// Putting after all time consuming operations.
-				if (cancelled) return;
+				if (isCancelled()) return;
 
 				onResponseGain(response);
 
 				if (response.getStatusLine().getStatusCode() == HttpURLConnection.HTTP_MOVED_PERM) {
 					onRedirect(response.getFirstHeader("Location").getValue());
+					if (isCancelled()) return;
 					request.setURI(URI.create(response.getFirstHeader("Location").getValue()));
 				} else break;
 
@@ -81,7 +83,12 @@ public abstract class Request implements ResponseFactory.Parser {
 			throw new RequestFail(e);
 		}
 
+		if (isCancelled()) return;
+
 		prepare(profile);
+
+		if (isCancelled()) return;
+
 		try {
 			ResponseFactory.read(response, this);
 		} catch (Throwable e) {
