@@ -21,7 +21,7 @@ public abstract class Page extends Request implements ModularBlockParser.ParsedO
 	private Thread waitFor;
 
 	{
-		setMultithreadMode(true);
+		setMultithreadMode(false); // 'cause it sucks right now.
 	}
 
 	public void setMultithreadMode(boolean on) {

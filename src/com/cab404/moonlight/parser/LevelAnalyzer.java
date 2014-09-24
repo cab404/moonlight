@@ -2,7 +2,6 @@ package com.cab404.moonlight.parser;
 
 import com.cab404.moonlight.util.SU;
 import com.cab404.moonlight.util.exceptions.CannotFixTreeFail;
-import com.cab404.moonlight.util.logging.Log;
 
 import java.util.*;
 
@@ -31,7 +30,7 @@ public class LevelAnalyzer {
 			if (opening == null) {
 				// IDK what to do here. We have no block, and that may be a pretty annoying and sneaky error.
 				// I'll just send a message.
-				Log.w("No opening tag found for tag " + tag.toString() + " with index " + tag.index + ", skipping.");
+				System.err.println("No opening tag found for tag " + tag.toString() + " with index " + tag.index + ", skipping.");
 				return;
 			}
 

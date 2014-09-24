@@ -2,7 +2,6 @@ package com.cab404.moonlight.util.tests;
 
 import com.cab404.moonlight.framework.AccessProfile;
 import com.cab404.moonlight.util.SU;
-import com.cab404.moonlight.util.logging.Log;
 
 import java.util.List;
 
@@ -21,11 +20,11 @@ public class TestLauncher {
 	public boolean test(Test test) {
 		try {
 			test.test(profile);
-			Log.v(SU.fillSpaces(test.title() + "", 50, 1, SU.Gravity.LEFT) + " [  OK  ] ");
+			System.out.println(SU.fillSpaces(test.title() + "", 50, 1, SU.Gravity.LEFT) + " [  OK  ] ");
 			return true;
 		} catch (Throwable e) {
-			Log.v(SU.fillSpaces(test.title() + "", 50, 1, SU.Gravity.LEFT) + " [ fail ] ");
-			Log.w(e);
+			System.out.println(SU.fillSpaces(test.title() + "", 50, 1, SU.Gravity.LEFT) + " [ fail ] ");
+			e.printStackTrace();
 			return false;
 		}
 	}
@@ -44,7 +43,7 @@ public class TestLauncher {
 					i++;
 			}
 
-			Log.v(i + "/" + test_classes.size() + " passed in " + (System.currentTimeMillis() - timeMs) / 1000 + " seconds.");
+			System.out.println(i + "/" + test_classes.size() + " passed in " + (System.currentTimeMillis() - timeMs) / 1000 + " seconds.");
 
 		} catch (Throwable e) {
 			throw new RuntimeException("Cannot create tests!", e);

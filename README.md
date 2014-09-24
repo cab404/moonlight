@@ -94,5 +94,5 @@ public static void main(String... args){
 This project was forked from my [libtabun](https://github.com/cab404/libtabun), as I found it pretty useful in many cases.
 
 ###Help
-You can send me [email](mailto:cab404@ya.ru), or chat with me in Jabber (cab404@jabber.ru).
+You can send me [email](mailto:me@cab404.ru), or chat with me in Jabber (me@cab404.ru).
 
