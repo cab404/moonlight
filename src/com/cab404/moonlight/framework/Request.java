@@ -66,7 +66,7 @@ public abstract class Request implements ResponseFactory.Parser {
 			do {
 				// Putting after all time consuming operations and possible overrides.
 				if (isCancelled()) return;
-				response = RU.exec(request, profile, false);
+				response = profile.exec(request, false);
 				if (isCancelled()) return;
 
 				onResponseGain(response);
