@@ -25,9 +25,7 @@ import java.util.Map;
  * @author cab404
  */
 public class AccessProfile {
-
-    protected HashMap<String, String> cookies = new HashMap<>();
-    protected HttpClient client = new DefaultHttpClient();
+    public HashMap<String, String> cookies = new HashMap<>();
     protected HttpHost host;
 
     /**
@@ -137,6 +135,7 @@ public class AccessProfile {
 
     public HttpResponse exec(HttpRequestBase request, boolean follow, int timeout) {
         try {
+            HttpClient client = new DefaultHttpClient();
 
             client.getParams().setIntParameter(CoreConnectionPNames.SO_TIMEOUT, timeout);
             client.getParams().setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, timeout);
@@ -158,7 +157,7 @@ public class AccessProfile {
     }
 
     public HttpResponse exec(HttpRequestBase request, boolean follow) {
-        return exec(request, follow, 60000);
+        return exec(request, follow, 20000);
     }
 
     public HttpResponse exec(HttpRequestBase request) {
