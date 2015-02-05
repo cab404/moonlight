@@ -19,7 +19,7 @@ public class LevelAnalyzer {
 		linked = text;
 	}
 
-	public void add(Tag tag) {
+	public synchronized void add(Tag tag) {
 		tag.index = tags.size();
 		tags.add(new LeveledTag(tag, 0));
 
@@ -30,7 +30,7 @@ public class LevelAnalyzer {
 			if (opening == null) {
 				// IDK what to do here. We have no block, and that may be a pretty annoying and sneaky error.
 				// I'll just send a message.
-				System.err.println("No opening tag found for tag " + tag.toString() + " with index " + tag.index + ", skipping.");
+//				System.err.println("No opening tag found for tag " + tag.toString() + " with index " + tag.index + ", skipping.");
 				return;
 			}
 

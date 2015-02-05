@@ -147,7 +147,7 @@ public class TagParser {
 				// 0 - searching for end of key,
 				// 1 - searching for a start of value,
 				// 2 - searching the end of value.
-				int mode = 0;
+				byte mode = 0;
 
 				for (int index = 0; index < params.length(); index++) {
 					char current = params.charAt(index);
