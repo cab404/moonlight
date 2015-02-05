@@ -2,6 +2,8 @@ package com.cab404.moonlight.parser;
 
 import com.cab404.moonlight.facility.ResponseFactory;
 import com.cab404.moonlight.framework.BlockProvider;
+import com.cab404.moonlight.util.exceptions.ParseFail;
+import com.cab404.moonlight.util.exceptions.StreamDecodeFail;
 
 /**
  * Sorry for no comments!
@@ -37,6 +39,11 @@ public class MultiThread implements ParsingThreadPolicy {
                 if (analyzer.isThreadFinished())
                     break;
             }
+
+        if (analyzer.exception != null)
+            throw new StreamDecodeFail(analyzer.exception);
+        if (parser.exception != null)
+            throw new ParseFail(parser.exception);
     }
 
     @Override

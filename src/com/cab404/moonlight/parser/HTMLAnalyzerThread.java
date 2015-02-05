@@ -16,6 +16,8 @@ public class HTMLAnalyzerThread extends Thread implements TagParser.TagHandler, 
     private LevelAnalyzer analyzer;
     private boolean finished = false, threadFinished = false;
 
+    public Throwable exception = null;
+
     public HTMLAnalyzerThread(CharSequence data) {
         queue = new ConcurrentLinkedQueue<>();
         this.analyzer = new LevelAnalyzer(data);
@@ -28,18 +30,26 @@ public class HTMLAnalyzerThread extends Thread implements TagParser.TagHandler, 
 
     @Override
     public void run() {
+        try {
+            while ((!finished || !queue.isEmpty()) && !Thread.interrupted())
+                while (!queue.isEmpty()) {
+                    Tag tag = queue.poll();
+                    analyzer.add(tag);
+                }
 
-        while ((!finished || !queue.isEmpty()) && !Thread.interrupted())
-            while (!queue.isEmpty()) {
-                Tag tag = queue.poll();
-                analyzer.add(tag);
+            synchronized (this) {
+                this.notifyAll();
             }
 
-        synchronized (this) {
-            this.notifyAll();
+            threadFinished = true;
+        } catch (Throwable t) {
+            exception = t;
+            finished = true;
+            threadFinished = true;
+            synchronized (this) {
+                this.notifyAll();
+            }
         }
-
-        threadFinished = true;
     }
 
     @Override

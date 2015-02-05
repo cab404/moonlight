@@ -19,6 +19,8 @@ public class HTMLTagParserThread extends Thread implements ResponseFactory.Parse
     private TagParser parser;
     private boolean finished = false;
 
+    Throwable exception = null;
+
     public CharSequence getHTML() {
         return parser.getHTML();
     }
@@ -39,13 +41,18 @@ public class HTMLTagParserThread extends Thread implements ResponseFactory.Parse
 
     @Override
     public void run() {
+        try {
 
-        while ((!finished || !queue.isEmpty()) && !Thread.interrupted())
-            while (!queue.isEmpty())
-                parser.process(queue.poll());
+            while ((!finished || !queue.isEmpty()) && !Thread.interrupted())
+                while (!queue.isEmpty())
+                    parser.process(queue.poll());
 
-        bonded_analyzer.finished();
+            bonded_analyzer.finished();
 
+        } catch (Throwable t) {
+            exception = t;
+            finished = true;
+        }
     }
 
     @Override

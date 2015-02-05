@@ -18,7 +18,7 @@ public abstract class Page extends Request implements ModularBlockParser.ParsedO
     private ParsingThreadPolicy policy;
 
     {
-        setMultithreadMode(true); // 'cause it sucks right now.
+        setMultithreadMode(true);
     }
 
     public void setMultithreadMode(boolean on) {
