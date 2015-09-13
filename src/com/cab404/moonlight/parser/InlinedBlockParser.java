@@ -38,7 +38,10 @@ public class InlinedBlockParser implements ResponseFactory.Parser, BlockProvider
     }
 
     @Override
-    public void finished() {
+    public void finished(){
+        synchronized (this){
+            notify();
+        }
         isFinished = true;
     }
 

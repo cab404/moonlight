@@ -14,292 +14,308 @@ import java.util.List;
  */
 public class HTMLTree implements Iterable<Tag> {
 
-	private final List<LevelAnalyzer.LeveledTag> leveled;
-	public final CharSequence html;
-
-	@Override
-	public Iterator<Tag> iterator() {
-		return new Iterator<Tag>() {
-			int i = 0;
-			@Override public boolean hasNext() {
-				return i < size();
-			}
-			@Override public Tag next() {
-				return get(i++);
-			}
-			@Override public void remove() {
-				throw new UnsupportedOperationException();
-			}
-		};
-	}
+    private final List<LevelAnalyzer.LeveledTag> leveled;
+    public final CharSequence html;
+    // used for logging
+    private boolean subtree = false;
+
+    @Override
+    public Iterator<Tag> iterator() {
+        return new Iterator<Tag>() {
+            int i = 0;
+
+            @Override
+            public boolean hasNext() {
+                return i < size();
+            }
+
+            @Override
+            public Tag next() {
+                return get(i++);
+            }
 
+            @Override
+            public void remove() {
+                throw new UnsupportedOperationException();
+            }
+        };
+    }
 
-	/**
-	 * Returns index of first tag; basically, index offset of current tree. 
-	 */
-	public int offset() {
-		if (size() == 0)
-			throw new RuntimeException("Zero-sized tree has no buffered_offset.");
-		return leveled.get(0).tag.index;
-	}
 
-
-	public int size() {
-		return leveled.size();
-	}
+    /**
+     * Returns index of first tag; basically, index offset of current tree. 
+     */
+    public int offset() {
+        if (size() == 0)
+            throw new RuntimeException("Zero-sized tree has no buffered_offset.");
+        return leveled.get(0).tag.index;
+    }
 
-	public Tag get(int index) {
-		return leveled.get(index).tag;
-	}
-
-	public int indexOf(Tag tag) {
-		return tag.index - offset();
-	}
-
-	public int getLevel(int index) {
-		return leveled.get(index).getLevel();
-	}
 
-	public int getLevel(Tag tag) {
-		return getLevel(tag.index - offset());
-	}
+    public int size() {
+        return leveled.size();
+    }
 
+    public Tag get(int index) {
+        return leveled.get(index).tag;
+    }
 
-	private HTMLTree(HTMLTree tree, int start, int end) {
-		this.html = tree.html;
-		this.leveled = tree.leveled.subList(start, end);
-	}
+    public int indexOf(Tag tag) {
+        return tag.index - offset();
+    }
+
+    public int getLevel(int index) {
+        return leveled.get(index).getLevel();
+    }
+
+    public int getLevel(Tag tag) {
+        return getLevel(tag.index - offset());
+    }
 
-	public HTMLTree(LevelAnalyzer analyzed, CharSequence data) {
-		this(analyzed.getSlice(0, analyzed.size()), data);
-	}
 
-	public HTMLTree(List<LevelAnalyzer.LeveledTag> analyzed, CharSequence data) {
-		html = data;
-		leveled = analyzed;
-	}
+    private HTMLTree(HTMLTree tree, int start, int end) {
+        this.html = tree.html;
+        this.subtree = true;
+        this.leveled = tree.leveled.subList(start, end);
+    }
 
-	public HTMLTree(String text) {
-		final LevelAnalyzer analyzer = new LevelAnalyzer(text);
+    public HTMLTree(LevelAnalyzer analyzed, CharSequence data) {
+        this(analyzed.getSlice(0, analyzed.size()), data);
+    }
 
-		TagParser parser = new TagParser();
+    public HTMLTree(List<LevelAnalyzer.LeveledTag> analyzed, CharSequence data) {
+        html = data;
+        leveled = analyzed;
+    }
 
-		parser.setTagHandler(new TagParser.TagHandler() {
-			@Override public void handle(Tag tag) {
-				analyzer.add(tag);
-			}
-		});
+    public HTMLTree(String text) {
+        final LevelAnalyzer analyzer = new LevelAnalyzer(text);
 
-		parser.process(text);
+        TagParser parser = new TagParser();
 
-		html = text;
+        parser.setTagHandler(new TagParser.TagHandler() {
+            @Override
+            public void handle(Tag tag) {
+                analyzer.add(tag);
+            }
+        });
 
-		analyzer.fix();
-		leveled = analyzer.getSlice(0, analyzer.size());
+        parser.process(text);
 
-	}
+        html = text;
 
-	public Tag getTagByID(String id) {
-		for (Tag tag : this)
-			if (tag.props.containsKey("id")) {
-				if (SU.fast_match(id, tag.get("id")))
-					return tag;
-			}
-		throw new TagNotFoundException();
-	}
+        analyzer.fix();
+        leveled = analyzer.getSlice(0, analyzer.size());
 
-	private int getIndexForTag(Tag tag) {
-		return tag.index - offset();
-	}
+    }
 
-	public int getClosingTag(Tag tag) {
+    public Tag getTagByID(String id) {
+        for (Tag tag : this)
+            if (tag.props.containsKey("id")) {
+                if (SU.fast_match(id, tag.get("id")))
+                    return tag;
+            }
+        throw new TagNotFoundException();
+    }
 
-		int index = getIndexForTag(tag) + 1, level = getLevel(tag);
-		for (; index <= size(); index++) {
+    private int getIndexForTag(Tag tag) {
+        return tag.index - offset();
+    }
 
-			Tag check = get(index);
-			int c_level = getLevel(check);
+    public int getClosingTag(Tag tag) {
 
-			if (c_level == level && check.name.equals(tag.name))
-				return getIndexForTag(check);
+        int index = getIndexForTag(tag) + 1, level = getLevel(tag);
+        for (; index <= size(); index++) {
 
-		}
+            Tag check = get(index);
+            int c_level = getLevel(check);
 
-		throw new TagNotFoundException();
-	}
+            if (c_level == level && check.name.equals(tag.name))
+                return getIndexForTag(check);
 
-	public String getContents(int index) {
-		return getContents(get(index));
-	}
+        }
 
-	public String getContents(Tag tag) {
-		return html.subSequence(tag.end, get(getClosingTag(tag)).start).toString();
-	}
-
-	/**
-	 * Возвращает уровень тегов целиком.
-	 */
-	public HTMLTree getTree(Tag opening) {
-
-		if (opening.isClosing()) throw new NotFoundFail("Попытка достать парсер для закрывающего тега!");
-		if (opening.isStandalone()) throw new NotFoundFail("Попытка достать парсер для standalone-тега!");
+        throw new TagNotFoundException();
+    }
 
-		return new HTMLTree(this, opening.index - offset(), getClosingTag(opening) + 1);
-	}
+    public String getContents(int index) {
+        return getContents(get(index));
+    }
 
-	/**
-	 * Возвращает уровень тегов целиком.
-	 */
-	public HTMLTree getTree(int index) {
-		return getTree(get(index));
-	}
-
-	public List<Tag> getTopChildren(Tag tag) {
-		if (tag.isClosing()) throw new NotFoundFail("Попытка достать теги верхнего уровня для закрывающего тега!");
-		if (tag.isStandalone()) throw new NotFoundFail("Попытка достать теги верхнего уровня для standalone-тега!");
+    public String getContents(Tag tag) {
+        return html.subSequence(tag.end, get(getClosingTag(tag)).start).toString();
+    }
 
+    /**
+     * Возвращает уровень тегов целиком.
+     */
+    public HTMLTree getTree(Tag opening) {
 
-		ArrayList<Tag> _return = new ArrayList<>();
+        if (opening.isClosing()) throw new NotFoundFail("Попытка достать парсер для закрывающего тега!");
+        if (opening.isStandalone()) throw new NotFoundFail("Попытка достать парсер для standalone-тега!");
+
+        return new HTMLTree(this, opening.index - offset(), getClosingTag(opening) + 1);
+    }
+
+    /**
+     * Возвращает уровень тегов целиком.
+     */
+    public HTMLTree getTree(int index) {
+        return getTree(get(index));
+    }
 
+    public List<Tag> getTopChildren(Tag tag) {
+        if (tag.isClosing()) throw new NotFoundFail("Попытка достать теги верхнего уровня для закрывающего тега!");
+        if (tag.isStandalone()) throw new NotFoundFail("Попытка достать теги верхнего уровня для standalone-тега!");
+
+
+        ArrayList<Tag> _return = new ArrayList<>();
 
-		int index = getIndexForTag(tag) + 1, level = getLevel(tag);
+
+        int index = getIndexForTag(tag) + 1, level = getLevel(tag);
 
-		for (; index <= size(); index++) {
+        for (; index <= size(); index++) {
+
+            Tag check = get(index);
+            int c_level = getLevel(check);
 
-			Tag check = get(index);
-			int c_level = getLevel(check);
+            if (getLevel(check) - 1 == level)
+                if (check.isOpening() || check.isStandalone())
+                    _return.add(check);
 
-			if (getLevel(check) - 1 == level)
-				if (check.isOpening() || check.isStandalone())
-					_return.add(check);
+            if (c_level == level)
+                break;
 
-			if (c_level == level)
-				break;
+        }
 
-		}
+        return _return;
+    }
 
-		return _return;
-	}
-
-	@Override
-	public String toString() {
-		if (size() == 0) return html.toString();
+    @Override
+    public String toString() {
+        if (size() == 0) return html.toString();
 
-		StringBuilder out = new StringBuilder(get(0).start != 0 ? html.subSequence(0, get(0).start) + "\n" : "");
-		int shift = getLevel(0);
+        int shift = getLevel(0);
+        StringBuilder out;
 
-		int end = -1;
-		for (Tag tag : this) {
-			if (end != -1) {
-				String text = html.subSequence(end, tag.start).toString().trim();
-				if (!text.isEmpty())
-					out
-							.append(SU.tabs(getLevel(tag) - shift + 1))
-							.append(text)
-							.append('\n');
-			}
-			out
-					.append(SU.tabs(getLevel(tag) - shift))
-					.append(tag)
-					.append("\n");
-			end = tag.end;
-		}
-
-		return out.toString();
-	}
-
-	public static class TagNotFoundException extends RuntimeException {
-		public TagNotFoundException() {
-			super();
-		}
-	}
-
-	public List<Tag> copyList() {
-		ArrayList<Tag> ret = new ArrayList<>();
-		for (Tag tag : this)
-			ret.add(tag);
-		return ret;
-	}
-
-
-	/**
-	 * Very simple implementation of XPath language interpreter.<br/>
-	 * It's using {@link com.cab404.moonlight.util.SU#fast_match(String, String) SU.fast_match()} for matching request parts.<br/>
-	 * Example of path: <br/> <code>div/a&href=*somesite.com/span</code>
-	 */
-	public List<Tag> xPath(String path) {
-
-		List<Tag> results = copyList();
-		int shift = getLevel(0);
-		for (int i = 0; i < results.size(); ) {
-			Tag tag = results.get(i);
-			if (tag.isClosing() || tag.isComment() || getLevel(tag) - shift > 1)
-				results.remove(i);
-			else
-				i++;
-		}
-
-		List<String> request = SU.charSplit(path, '/');
-
-		for (int index = 0; index < request.size(); index++) {
-
-			List<String> node = SU.charSplit(request.get(index), '&');
-
-			String name = node.remove(0);
-			for (int i = 0; i < results.size(); ) {
-				if (!SU.fast_match(name, results.get(i).name)) {
-					results.remove(i);
-					continue;
-				}
-				i++;
-			}
-
-			for (String quiz : node) {
-				List<String> property = SU.charSplit(quiz, 2, '=');
-
-				String p_name = property.get(0);
-				String p_val = property.get(1);
-
-				for (int i = 0; i < results.size(); ) {
-					Tag proc = results.get(i);
-
-					if (!(proc.props.containsKey(p_name) && SU.fast_match(p_val, proc.get(p_name)))) {
-						results.remove(i);
-						continue;
-					}
-
-					i++;
-				}
-
-			}
-
-			if (index < request.size() - 1) {
-				ArrayList<Tag> top = new ArrayList<>();
-				for (Tag tag : results)
-					if (tag.isOpening())
-						top.addAll(getTopChildren(tag));
-				results = top;
-			}
-
-		}
-
-		return results;
-	}
-
-	public String xPathStr(String str) {
-		try {
-			return getContents(xPathFirstTag(str));
-		} catch (IndexOutOfBoundsException | NullPointerException e) {
-			return null;
-		}
-	}
-
-	public Tag xPathFirstTag(String str) {
-		try {
-			return xPath(str).get(0);
-		} catch (IndexOutOfBoundsException e) {
-			return null;
-		}
-	}
+        // If we are performing on subtree, then skipping pre-tag data.
+        if (subtree)
+            out = new StringBuilder(get(0).start != 0 ? html.subSequence(0, get(0).start) + "\n" : "");
+        else
+            out = new StringBuilder();
+
+        int end = -1;
+        for (Tag tag : this) {
+            if (end != -1) {
+                String text = html.subSequence(end, tag.start).toString().trim();
+                if (!text.isEmpty())
+                    out
+                            .append(SU.tabs(getLevel(tag) - shift + 1))
+                            .append(text)
+                            .append('\n');
+            }
+            out
+                    .append(SU.tabs(getLevel(tag) - shift))
+                    .append(tag)
+                    .append("\n");
+            end = tag.end;
+        }
+
+        return out.toString();
+    }
+
+    public static class TagNotFoundException extends RuntimeException {
+        public TagNotFoundException() {
+            super();
+        }
+    }
+
+    public List<Tag> copyList() {
+        ArrayList<Tag> ret = new ArrayList<>();
+        for (Tag tag : this)
+            ret.add(tag);
+        return ret;
+    }
+
+
+    /**
+     * Very simple implementation of XPath language interpreter.<br/>
+     * It's using {@link com.cab404.moonlight.util.SU#fast_match(String, String) SU.fast_match()} for matching request parts.<br/>
+     * Example of path: <br/> <code>div/a&href=*somesite.com/span</code>
+     */
+    public List<Tag> xPath(String path) {
+
+        List<Tag> results = copyList();
+        int shift = getLevel(0);
+        for (int i = 0; i < results.size(); ) {
+            Tag tag = results.get(i);
+            if (tag.isClosing() || tag.isComment() || getLevel(tag) - shift > 1)
+                results.remove(i);
+            else
+                i++;
+        }
+
+        List<String> request = SU.charSplit(path, '/');
+
+        for (int index = 0; index < request.size(); index++) {
+
+            List<String> node = SU.charSplit(request.get(index), '&');
+
+            String name = node.remove(0);
+            for (int i = 0; i < results.size(); ) {
+                if (!SU.fast_match(name, results.get(i).name)) {
+                    results.remove(i);
+                    continue;
+                }
+                i++;
+            }
+
+            for (String quiz : node) {
+                List<String> property = SU.charSplit(quiz, 2, '=');
+
+                String p_name = property.get(0);
+                String p_val = property.get(1);
+
+                for (int i = 0; i < results.size(); ) {
+                    Tag proc = results.get(i);
+
+                    if (!(proc.props.containsKey(p_name) && SU.fast_match(p_val, proc.get(p_name)))) {
+                        results.remove(i);
+                        continue;
+                    }
+
+                    i++;
+                }
+
+            }
+
+            if (index < request.size() - 1) {
+                ArrayList<Tag> top = new ArrayList<>();
+                for (Tag tag : results)
+                    if (tag.isOpening())
+                        top.addAll(getTopChildren(tag));
+                results = top;
+            }
+
+        }
+
+        return results;
+    }
+
+    public String xPathStr(String str) {
+        try {
+            return getContents(xPathFirstTag(str));
+        } catch (IndexOutOfBoundsException | NullPointerException e) {
+            return null;
+        }
+    }
+
+    public Tag xPathFirstTag(String str) {
+        try {
+            return xPath(str).get(0);
+        } catch (IndexOutOfBoundsException e) {
+            return null;
+        }
+    }
 
 }

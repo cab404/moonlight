@@ -10,7 +10,7 @@ import com.cab404.moonlight.framework.BlockProvider;
  * @author cab404
  */
 public class SingleThread implements ParsingThreadPolicy {
-    InlinedBlockParser parser = new InlinedBlockParser();
+    final InlinedBlockParser parser = new InlinedBlockParser();
 
     @Override
     public void start() {
@@ -22,6 +22,14 @@ public class SingleThread implements ParsingThreadPolicy {
         while (true)
             if (parser.isFinished())
                 break;
+            else
+                synchronized (parser) {
+                    try {
+                        parser.wait();
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
 
     }
 

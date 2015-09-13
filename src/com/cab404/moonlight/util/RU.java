@@ -12,10 +12,11 @@ import org.apache.http.params.CoreConnectionPNames;
 import java.io.IOException;
 
 /**
- * Request utils.
+ * Request utils. Moved into profile.
  *
  * @author cab404
  */
+@Deprecated
 public class RU {
 
     @Deprecated
