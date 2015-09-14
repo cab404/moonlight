@@ -8,43 +8,51 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Простой навигатор по HTML.
+ * Simple html navigation class
  *
  * @author cab404
  */
 public class HTMLTree implements Iterable<Tag> {
-    /*
-    No questions here.
-    Just some stupid caching of start/end positions.
-    DO NOT ASK WHY IT DONE SO DUMB!
-    */
-    private int start = -1, end = -1;
-    public int start() {
-        return start == -1 ? start = leveled.get(0).tag.index : start;
-    }
-    public int end() {
-        return end == -1 ? end = leveled.get(size() - 1).tag.index : end;
-    }
 
     private final List<LevelAnalyzer.LeveledTag> leveled;
     public final CharSequence html;
+    // used for logging
+    private boolean subtree = false;
 
     @Override
     public Iterator<Tag> iterator() {
         return new Iterator<Tag>() {
             int i = 0;
-            @Override public boolean hasNext() {
+
+            @Override
+            public boolean hasNext() {
                 return i < size();
             }
-            @Override public Tag next() {
+
+            @Override
+            public Tag next() {
                 return get(i++);
             }
-            @Override public void remove() {
+
+            @Override
+            public void remove() {
                 throw new UnsupportedOperationException();
             }
         };
     }
-    private int size() {
+
+
+    /**
+     * Returns index of first tag; basically, index offset of current tree. 
+     */
+    public int offset() {
+        if (size() == 0)
+            throw new RuntimeException("Zero-sized tree has no buffered_offset.");
+        return leveled.get(0).tag.index;
+    }
+
+
+    public int size() {
         return leveled.size();
     }
 
@@ -52,17 +60,22 @@ public class HTMLTree implements Iterable<Tag> {
         return leveled.get(index).tag;
     }
 
+    public int indexOf(Tag tag) {
+        return tag.index - offset();
+    }
+
     public int getLevel(int index) {
         return leveled.get(index).getLevel();
     }
 
     public int getLevel(Tag tag) {
-        return getLevel(tag.index - start());
+        return getLevel(tag.index - offset());
     }
 
 
     private HTMLTree(HTMLTree tree, int start, int end) {
         this.html = tree.html;
+        this.subtree = true;
         this.leveled = tree.leveled.subList(start, end);
     }
 
@@ -81,12 +94,14 @@ public class HTMLTree implements Iterable<Tag> {
         TagParser parser = new TagParser();
 
         parser.setTagHandler(new TagParser.TagHandler() {
-            @Override public void handle(Tag tag) {
+            @Override
+            public void handle(Tag tag) {
                 analyzer.add(tag);
             }
         });
 
         parser.process(text);
+
         html = text;
 
         analyzer.fix();
@@ -104,13 +119,13 @@ public class HTMLTree implements Iterable<Tag> {
     }
 
     private int getIndexForTag(Tag tag) {
-        return tag.index - start();
+        return tag.index - offset();
     }
 
     public int getClosingTag(Tag tag) {
 
         int index = getIndexForTag(tag) + 1, level = getLevel(tag);
-        for (; index <= end(); index++) {
+        for (; index <= size(); index++) {
 
             Tag check = get(index);
             int c_level = getLevel(check);
@@ -139,7 +154,7 @@ public class HTMLTree implements Iterable<Tag> {
         if (opening.isClosing()) throw new NotFoundFail("Попытка достать парсер для закрывающего тега!");
         if (opening.isStandalone()) throw new NotFoundFail("Попытка достать парсер для standalone-тега!");
 
-        return new HTMLTree(this, opening.index - start(), getClosingTag(opening) + 1);
+        return new HTMLTree(this, opening.index - offset(), getClosingTag(opening) + 1);
     }
 
     /**
@@ -159,7 +174,7 @@ public class HTMLTree implements Iterable<Tag> {
 
         int index = getIndexForTag(tag) + 1, level = getLevel(tag);
 
-        for (; index <= end(); index++) {
+        for (; index <= size(); index++) {
 
             Tag check = get(index);
             int c_level = getLevel(check);
@@ -178,8 +193,16 @@ public class HTMLTree implements Iterable<Tag> {
 
     @Override
     public String toString() {
-        StringBuilder out = new StringBuilder();
+        if (size() == 0) return html.toString();
+
         int shift = getLevel(0);
+        StringBuilder out;
+
+        // If we are performing on subtree, then skipping pre-tag data.
+        if (subtree)
+            out = new StringBuilder(get(0).start != 0 ? html.subSequence(0, get(0).start) + "\n" : "");
+        else
+            out = new StringBuilder();
 
         int end = -1;
         for (Tag tag : this) {
@@ -216,7 +239,9 @@ public class HTMLTree implements Iterable<Tag> {
 
 
     /**
-     * Very simple implementation of XPath language interpreter.
+     * Very simple implementation of XPath language interpreter.<br/>
+     * It's using {@link com.cab404.moonlight.util.SU#fast_match(String, String) SU.fast_match()} for matching request parts.<br/>
+     * Example of path: <br/> <code>div/a&href=*somesite.com/span</code>
      */
     public List<Tag> xPath(String path) {
 

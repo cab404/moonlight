@@ -1,10 +1,9 @@
 package com.cab404.moonlight.framework;
 
 import com.cab404.moonlight.facility.RequestBuilder;
-import com.cab404.moonlight.facility.ResponseFactory;
-import com.cab404.moonlight.parser.HTMLAnalyzerThread;
-import com.cab404.moonlight.parser.HTMLTagParserThread;
-import com.cab404.moonlight.parser.InlinedBlockParser;
+import com.cab404.moonlight.parser.MultiThread;
+import com.cab404.moonlight.parser.ParsingThreadPolicy;
+import com.cab404.moonlight.parser.SingleThread;
 import org.apache.http.client.methods.HttpRequestBase;
 
 import java.nio.CharBuffer;
@@ -15,75 +14,91 @@ import java.nio.CharBuffer;
  * @author cab404
  */
 public abstract class Page extends Request implements ModularBlockParser.ParsedObjectHandler {
-	private BlockProvider provider;
-	private ModularBlockParser modules;
-	private ResponseFactory.Parser receiver;
-	private Thread waitFor;
+    private ModularBlockParser modules;
+    private ParsingThreadPolicy policy;
+    private ModularBlockParser.ParsedObjectHandler handler;
 
-	{
-		setMultithreadMode(true);
-	}
+    {
+        setMultithreadMode(true);
+    }
 
-	public void setMultithreadMode(boolean on) {
-		if (on) {
-			HTMLTagParserThread parser = new HTMLTagParserThread();
-			HTMLAnalyzerThread analyzerThread = new HTMLAnalyzerThread(parser.getHTML());
-			parser.bondWithAnalyzer(analyzerThread);
+    public void setMultithreadMode(boolean on) {
+        if (on)
+            policy = new MultiThread();
+        else
+            policy = new SingleThread();
+    }
 
-			waitFor = analyzerThread;
-			provider = analyzerThread;
-			receiver = parser;
+    /**
+     * Returns page url.
+     */
+    protected abstract String getURL();
 
-		} else {
-			InlinedBlockParser parser = new InlinedBlockParser();
-			provider = parser;
-			receiver = parser;
-		}
+    /**
+     * Binds modules.
+     * Binded module will receive blocks and it's output will be piped to ${link ModularBlockParser.ParsedObjectHandler#handle}
+     */
+    protected abstract void bindParsers(ModularBlockParser base);
 
-	}
+    @Override
+    protected void prepare(AccessProfile profile) {
+        policy.start();
 
-	/**
-	 * Returns page url.
-	 */
-	protected abstract String getURL();
-	/**
-	 * Binds modules.
-	 * Binded module will receive blocks and it's output will be piped to ${link ModularBlockParser.ParsedObjectHandler#handle}
-	 */
-	protected abstract void bindParsers(ModularBlockParser base);
+        ModularBlockParser.ParsedObjectHandler h = this;
+        if (handler != null)
+            h = new MergedHandler(this, handler);
 
-	@Override protected void prepare(AccessProfile profile) {
-		modules = new ModularBlockParser(this, profile);
+        modules = new ModularBlockParser(h, profile);
 
-		bindParsers(modules);
+        bindParsers(modules);
 
-		provider.setBlockHandler(modules);
-	}
+        policy.provider().setBlockHandler(modules);
+    }
 
-	@Override protected HttpRequestBase getRequest(AccessProfile profile) {
-		String url = getURL();
-		return RequestBuilder.get(url, profile).build();
-	}
+    @Override
+    protected HttpRequestBase getRequest(AccessProfile profile) {
+        String url = getURL();
+        return RequestBuilder.get(url, profile).build();
+    }
 
-	@Override public boolean part(CharBuffer part) {
-		return receiver.part(part) && !modules.isEmpty();
-	}
+    @Override
+    public boolean part(CharBuffer part) {
+        return !isCancelled() && policy.reciever().part(part) && !modules.isEmpty();
+    }
 
-	@Override public void finished() {
-		receiver.finished();
-	}
+    @Override
+    public void finished() {
+        policy.finished();
+    }
 
-	@Override public void fetch(AccessProfile accessProfile) {
-		super.fetch(accessProfile);
+    @Override
+    public void fetch(AccessProfile accessProfile) {
+        super.fetch(accessProfile);
+        policy.join();
+    }
 
+    public ModularBlockParser.ParsedObjectHandler getHandler() {
+        return handler;
+    }
 
-		if (waitFor != null)
-			try {
-				waitFor.join();
-			} catch (InterruptedException e) {
-				throw new RuntimeException(e);
-			}
-	}
+    public void setHandler(ModularBlockParser.ParsedObjectHandler handler) {
+        this.handler = handler;
+    }
 
+    class MergedHandler implements ModularBlockParser.ParsedObjectHandler {
 
+        private final ModularBlockParser.ParsedObjectHandler h1;
+        private final ModularBlockParser.ParsedObjectHandler h2;
+
+        public MergedHandler(ModularBlockParser.ParsedObjectHandler h1, ModularBlockParser.ParsedObjectHandler h2) {
+            this.h1 = h1;
+            this.h2 = h2;
+        }
+
+        @Override
+        public void handle(Object object, int key) {
+            h1.handle(object, key);
+            h2.handle(object, key);
+        }
+    }
 }

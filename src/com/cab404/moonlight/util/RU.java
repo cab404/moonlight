@@ -12,44 +12,31 @@ import org.apache.http.params.CoreConnectionPNames;
 import java.io.IOException;
 
 /**
- * Request utils.
+ * Request utils. Moved into profile.
  *
  * @author cab404
  */
+@Deprecated
 public class RU {
 
+    @Deprecated
     public static HttpResponse exec(HttpRequestBase request, AccessProfile profile, boolean follow, int timeout) {
-        try {
-            HttpClient client = new DefaultHttpClient();
-
-            client.getParams().setIntParameter(CoreConnectionPNames.SO_TIMEOUT, timeout);
-            client.getParams().setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, timeout);
-            client.getParams().setBooleanParameter(ClientPNames.HANDLE_REDIRECTS, follow);
-
-            request.addHeader(profile.getCookies());
-
-            HttpResponse response = client.execute(profile.getHost(), request);
-
-            profile.handleCookies(response.getHeaders("Set-Cookie"));
-
-            return response;
-        } catch (IOException e) {
-            throw new ResponseFail(e);
-        }
+        return profile.exec(request, follow, timeout);
     }
 
-    public static HttpResponse exec(HttpRequestBase request, AccessProfile accessProfile, boolean follow) {
-        return exec(request, accessProfile, follow, 60000);
+    @Deprecated
+    public static HttpResponse exec(HttpRequestBase request, AccessProfile profile, boolean follow) {
+        return profile.exec(request, follow);
     }
 
-    public static HttpResponse exec(HttpRequestBase request, AccessProfile accessProfile) {
-        return exec(request, accessProfile, true);
+    @Deprecated
+    public static HttpResponse exec(HttpRequestBase request, AccessProfile profile) {
+        return profile.exec(request);
     }
 
+    @Deprecated
     public static HttpResponse exec(HttpRequestBase request) {
-        return exec(request, null);
+        return new AccessProfile(null, 80).exec(request);
     }
-
-
 
 }

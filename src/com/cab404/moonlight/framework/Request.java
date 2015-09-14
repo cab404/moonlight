@@ -7,6 +7,8 @@ import com.cab404.moonlight.util.exceptions.RequestFail;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpRequestBase;
 
+import java.net.HttpURLConnection;
+import java.net.URI;
 import java.nio.CharBuffer;
 
 /**
@@ -16,48 +18,84 @@ import java.nio.CharBuffer;
  */
 public abstract class Request implements ResponseFactory.Parser {
 
+	private boolean cancelled = false;
 
-    protected abstract HttpRequestBase getRequest(AccessProfile accessProfile);
+	public void cancel() {
+		cancelled = true;
+	}
 
-    /**
-     * Preparations before receiving data into {@link com.cab404.moonlight.facility.ResponseFactory.Parser#part(java.nio.CharBuffer)}
-     */
-    protected void prepare(AccessProfile accessProfile) {}
-    /**
-     * It will receive data until we out of it or false is returned.
-     * @param part
-     */
-    @Override public boolean part(CharBuffer part) {return false;}
-    /**
-     * Invoked after data loading finished.
-     */
-    @Override public abstract void finished();
+	public boolean isCancelled() {
+		return cancelled || Thread.interrupted();
+	}
 
-    /**
-     * Do not process response entity in this method!
-     * ...or throw error at least, so we won't activate parsers on empty stream.
-     */
-    protected void onResponseGain(HttpResponse response) {}
+	protected abstract HttpRequestBase getRequest(AccessProfile accessProfile);
 
-    protected void fetch(AccessProfile profile) {
-        HttpRequestBase request = getRequest(profile);
+	/**
+	 * Preparations before receiving data into {@link com.cab404.moonlight.facility.ResponseFactory.Parser#part(java.nio.CharBuffer)}
+	 */
+	protected void prepare(AccessProfile accessProfile) {}
+	/**
+	 * It will receive data until we out of it or false is returned.
+	 *
+	 * @param part
+	 */
+	@Override public boolean part(CharBuffer part) {return false;}
+	/**
+	 * Invoked after data loading finished.
+	 */
+	@Override public abstract void finished();
 
-        HttpResponse response;
-        try {
-            response = RU.exec(request, profile);
-            onResponseGain(response);
-        } catch (Throwable e) {
-            throw new RequestFail(e);
-        }
+	/**
+	 * Do not process response entity in this method!
+	 * ...or throw error at least, so we won't activate parsers on empty stream.
+	 */
+	protected void onResponseGain(HttpResponse response) {}
 
-        prepare(profile);
-        try {
-            ResponseFactory.read(response, this);
-        } catch (Throwable e) {
-            throw new LoadingFail(e);
-        }
+	/**
+	 * Invoked on redirect response. Redirection will be processed automatically.
+	 */
+	protected void onRedirect(String to) {
+
+	}
+
+	public void fetch(AccessProfile profile) {
+		HttpRequestBase request = getRequest(profile);
+		HttpResponse response;
+
+		try {
+			do {
+				// Putting after all time consuming operations and possible overrides.
+				if (isCancelled()) return;
+				response = profile.exec(request, false);
+				if (isCancelled()) return;
+
+				onResponseGain(response);
+
+				if (response.getStatusLine().getStatusCode() == HttpURLConnection.HTTP_MOVED_PERM) {
+					onRedirect(response.getFirstHeader("Location").getValue());
+					if (isCancelled()) return;
+					request.setURI(URI.create(response.getFirstHeader("Location").getValue()));
+				} else break;
+
+			} while (true);
+
+		} catch (Throwable e) {
+			throw new RequestFail(e);
+		}
+
+		if (isCancelled()) return;
+
+		prepare(profile);
+
+		if (isCancelled()) return;
+
+		try {
+			ResponseFactory.read(response, this);
+		} catch (Throwable e) {
+			throw new LoadingFail(e);
+		}
 
 
-    }
+	}
 
 }

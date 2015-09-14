@@ -2,7 +2,8 @@ package com.cab404.moonlight.parser;
 
 import com.cab404.moonlight.framework.BlockProvider;
 
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * HTML tree analyzing thread.
@@ -11,45 +12,58 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @see com.cab404.moonlight.parser.HTMLTagParserThread
  */
 public class HTMLAnalyzerThread extends Thread implements TagParser.TagHandler, BlockProvider {
-	private CopyOnWriteArrayList<Tag> queue;
-	private LevelAnalyzer analyzer;
-	private boolean started = false;
+    private final Queue<Tag> queue;
+    private LevelAnalyzer analyzer;
+    private boolean finished = false, threadFinished = false;
 
+    public Throwable exception = null;
 
-	public HTMLAnalyzerThread(CharSequence data) {
-		queue = new CopyOnWriteArrayList<>();
-		this.analyzer = new LevelAnalyzer(data);
-		setDaemon(true);
-	}
+    public HTMLAnalyzerThread(CharSequence data) {
+        queue = new ConcurrentLinkedQueue<>();
+        this.analyzer = new LevelAnalyzer(data);
+        setDaemon(true);
+    }
 
-	public void setBlockHandler(LevelAnalyzer.BlockHandler handler) {
-		analyzer.setBlockHandler(handler);
-	}
+    public void setBlockHandler(LevelAnalyzer.BlockHandler handler) {
+        analyzer.setBlockHandler(handler);
+    }
 
-	@Override public void run() {
+    @Override
+    public void run() {
+        try {
+            while ((!finished || !queue.isEmpty()) && !Thread.interrupted())
+                while (!queue.isEmpty()) {
+                    Tag tag = queue.poll();
+                    analyzer.add(tag);
+                }
 
-		while (true) {
+            synchronized (this) {
+                this.notifyAll();
+            }
 
-			if (!queue.isEmpty()) {
-				Tag tag = queue.remove(0);
-				if (tag == null)
-					break;
-				analyzer.add(tag);
-			}
+            threadFinished = true;
+        } catch (Throwable t) {
+            exception = t;
+            finished = true;
+            threadFinished = true;
+            synchronized (this) {
+                this.notifyAll();
+            }
+        }
+    }
 
-		}
+    @Override
+    public synchronized void handle(Tag tag) {
 
-	}
+        queue.add(tag);
 
-	@Override public void handle(Tag tag) {
-		if (!started & (started = true))
-			start();
+    }
 
-		queue.add(tag);
-	}
+    public synchronized void finished() {
+        finished = true;
+    }
 
-	public void finished() {
-		queue.add(null);
-	}
-
+    public boolean isThreadFinished() {
+        return threadFinished;
+    }
 }

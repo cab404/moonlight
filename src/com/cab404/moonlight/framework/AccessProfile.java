@@ -2,10 +2,18 @@ package com.cab404.moonlight.framework;
 
 import com.cab404.moonlight.util.SU;
 import com.cab404.moonlight.util.U;
+import com.cab404.moonlight.util.exceptions.ResponseFail;
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.params.ClientPNames;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicHeader;
+import org.apache.http.params.CoreConnectionPNames;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,9 +25,8 @@ import java.util.Map;
  * @author cab404
  */
 public class AccessProfile {
-
     public HashMap<String, String> cookies = new HashMap<>();
-    private HttpHost host;
+    protected HttpHost host;
 
     /**
      * Returns host for sending requests.
@@ -74,17 +81,20 @@ public class AccessProfile {
     /**
      * Takes value of "Cookie" header and saves it in map, replacing older ones if needed.
      */
-    private void addCookies(String input) {
-        String cookie = input.split("; ")[0];
-        String[] split = cookie.split("=");
-        if (split.length == 2)
-            cookies.put(split[0], split[1]);
+    protected void addCookies(String input) {
+        List<String> cookenziii = SU.split(input, "; ");
+        for (String coookiiie : cookenziii) {
+            List<String> split = SU.split(coookiiie, "=");
+            if (split.size() == 2)
+                cookies.put(split.get(0), split.get(1));
+        }
     }
 
     /**
      * Returns cookies.
      */
-    @Override public String toString() {
+    @Override
+    public String toString() {
         return getCookies().getValue();
     }
 
@@ -96,7 +106,7 @@ public class AccessProfile {
      * @see AccessProfile#parseString(String)
      */
     public String serialize() {
-        return getHost().getHostName() + ":" + getHost().getPort() + "@" + getCookies().getValue();
+        return getHost().getHostName() + ":" + getHost().getPort() + "@" + SU.rl(getCookies().getValue());
     }
 
     /**
@@ -105,7 +115,7 @@ public class AccessProfile {
      */
     protected void setUpFromString(String s) {
         List<String> name_and_everything_else = SU.split(s, ":", 2);
-        List<String> port_and_cookies = SU.split(name_and_everything_else.get(1), "@", 2);
+        List<String> port_and_cookies = SU.split(SU.drl(name_and_everything_else.get(1)), "@", 2);
 
         host = new HttpHost(name_and_everything_else.get(0), U.parseInt(port_and_cookies.get(0)));
         addCookies(port_and_cookies.get(1));
@@ -121,4 +131,37 @@ public class AccessProfile {
         _return.setUpFromString(s);
         return _return;
     }
+
+
+    public HttpResponse exec(HttpRequestBase request, boolean follow, int timeout) {
+        try {
+            HttpClient client = new DefaultHttpClient();
+
+            client.getParams().setIntParameter(CoreConnectionPNames.SO_TIMEOUT, timeout);
+            client.getParams().setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, timeout);
+            client.getParams().setBooleanParameter(ClientPNames.HANDLE_REDIRECTS, follow);
+
+            HttpResponse response;
+            if (request.getURI().getHost() != null) {
+                response = client.execute(request);
+            } else {
+                request.addHeader(getCookies());
+                response = client.execute(getHost(), request);
+            }
+            handleCookies(response.getHeaders("Set-Cookie"));
+
+            return response;
+        } catch (IOException e) {
+            throw new ResponseFail(e);
+        }
+    }
+
+    public HttpResponse exec(HttpRequestBase request, boolean follow) {
+        return exec(request, follow, 20000);
+    }
+
+    public HttpResponse exec(HttpRequestBase request) {
+        return exec(request, true);
+    }
+
 }
