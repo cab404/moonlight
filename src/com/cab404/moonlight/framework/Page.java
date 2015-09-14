@@ -16,6 +16,7 @@ import java.nio.CharBuffer;
 public abstract class Page extends Request implements ModularBlockParser.ParsedObjectHandler {
     private ModularBlockParser modules;
     private ParsingThreadPolicy policy;
+    private ModularBlockParser.ParsedObjectHandler handler;
 
     {
         setMultithreadMode(true);
@@ -43,7 +44,11 @@ public abstract class Page extends Request implements ModularBlockParser.ParsedO
     protected void prepare(AccessProfile profile) {
         policy.start();
 
-        modules = new ModularBlockParser(this, profile);
+        ModularBlockParser.ParsedObjectHandler h = this;
+        if (handler != null)
+            h = new MergedHandler(this, handler);
+
+        modules = new ModularBlockParser(h, profile);
 
         bindParsers(modules);
 
@@ -72,4 +77,28 @@ public abstract class Page extends Request implements ModularBlockParser.ParsedO
         policy.join();
     }
 
+    public ModularBlockParser.ParsedObjectHandler getHandler() {
+        return handler;
+    }
+
+    public void setHandler(ModularBlockParser.ParsedObjectHandler handler) {
+        this.handler = handler;
+    }
+
+    class MergedHandler implements ModularBlockParser.ParsedObjectHandler {
+
+        private final ModularBlockParser.ParsedObjectHandler h1;
+        private final ModularBlockParser.ParsedObjectHandler h2;
+
+        public MergedHandler(ModularBlockParser.ParsedObjectHandler h1, ModularBlockParser.ParsedObjectHandler h2) {
+            this.h1 = h1;
+            this.h2 = h2;
+        }
+
+        @Override
+        public void handle(Object object, int key) {
+            h1.handle(object, key);
+            h2.handle(object, key);
+        }
+    }
 }
