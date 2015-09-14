@@ -106,7 +106,7 @@ public class AccessProfile {
      * @see AccessProfile#parseString(String)
      */
     public String serialize() {
-        return getHost().getHostName() + ":" + getHost().getPort() + "@" + SU.rl(getCookies().getValue());
+        return getHost().getHostName() + ":" + getHost().getPort() + "@" + getCookies().getValue();
     }
 
     /**
@@ -115,7 +115,7 @@ public class AccessProfile {
      */
     protected void setUpFromString(String s) {
         List<String> name_and_everything_else = SU.split(s, ":", 2);
-        List<String> port_and_cookies = SU.split(SU.drl(name_and_everything_else.get(1)), "@", 2);
+        List<String> port_and_cookies = SU.split(name_and_everything_else.get(1), "@", 2);
 
         host = new HttpHost(name_and_everything_else.get(0), U.parseInt(port_and_cookies.get(0)));
         addCookies(port_and_cookies.get(1));
