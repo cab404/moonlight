@@ -25,7 +25,6 @@ public class LevelAnalyzer {
 
 		if (tag.isClosing()) {
 			LeveledTag opening;
-
 			opening = findOpening(tag.index);
 			if (opening == null) {
 				// IDK what to do here. We have no block, and that may be a pretty annoying and sneaky error.
@@ -76,20 +75,17 @@ public class LevelAnalyzer {
 	 * This one made for relatively good-written sites.
 	 */
 	private Map<String, Integer> analyzeSlice(int start, int end) {
+
 		HashMap<String, Integer> levels = new HashMap<>();
 
 		for (int i = start; i < end; i++) {
 			LeveledTag checking = tags.get(i);
+
 			if (checking.tag.isComment()) continue;
 			if (checking.fixed) continue;
 
-			int c_level;
-
-			if (!levels.containsKey(checking.tag.name)) {
-				levels.put(checking.tag.name, 0);
-				c_level = 0;
-			} else
-				c_level = levels.get(checking.tag.name);
+			Integer c_level = levels.get(checking.tag.name);
+			if (c_level == null) c_level = 0;
 
 			if (checking.tag.isClosing())
 				if (c_level == 0) checking.tag.type = Tag.Type.STANDALONE;
@@ -109,13 +105,8 @@ public class LevelAnalyzer {
 			if (checking.tag.isComment()) continue;
 			if (checking.fixed) continue;
 
-			int c_level;
-
-			if (!levels.containsKey(checking.tag.name)) {
-				levels.put(checking.tag.name, 0);
-				c_level = 0;
-			} else c_level = levels.get(checking.tag.name);
-
+			Integer c_level = levels.get(checking.tag.name);
+			if (c_level == null) c_level = 0;
 
 			if (checking.tag.isClosing())
 				c_level--;
@@ -130,10 +121,29 @@ public class LevelAnalyzer {
 		return levels;
 	}
 
+	private boolean checkValidity(int start, int end) {
+		long check = 0;
+
+		for (int i = end - 1; i >= start; i--) {
+			LeveledTag checking = tags.get(i);
+
+			if (checking.tag.isStandalone() | checking.tag.isComment()) continue;
+
+			int modifier = checking.tag.name.hashCode();
+			if (checking.tag.isClosing()) check -= modifier;
+			if (checking.tag.isOpening()) check += modifier;
+
+		}
+
+		return check == 0;
+	}
+
 	/**
 	 * Checking if analyzeSlice fixed everything. If not, then RuntimeException.
 	 */
 	private void fixLyingLoners(int start, int end) {
+		if (checkValidity(start, end)) return;
+
 		Map<String, Integer> levels = analyzeSlice(start, end);
 
 		for (Map.Entry<String, Integer> e : levels.entrySet())
