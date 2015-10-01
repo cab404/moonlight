@@ -190,17 +190,23 @@ public class HTMLTree implements Iterable<Tag> {
     }
 
     @Override
-    public String toString() {
+    public String toString(){
+        return toString(true);
+    }
+
+    public String toString(boolean formatted) {
         if (size() == 0) return html.toString();
 
         int shift = getLevel(0);
         StringBuilder out;
 
+        String lineSeparator= formatted ? "\n" : "";
+
         // If we are performing on subtree, then skipping pre-tag data.
         if (!subtree)
             out = new StringBuilder(
                     get(0).start > 0
-                            ? (html.subSequence(0, get(0).start) + "\n")
+                            ? (html.subSequence(0, get(0).start) + lineSeparator)
                             : ""
             );
         else
@@ -209,17 +215,19 @@ public class HTMLTree implements Iterable<Tag> {
         int end = -1;
         for (Tag tag : this) {
             if (end != -1) {
-                String text = html.subSequence(end, tag.start).toString().trim();
-                if (!text.isEmpty())
+                CharSequence text = html.subSequence(end, tag.start);
+                if (formatted)
+                    text = SU.trim(text);
+                if (text.length() > 0)
                     out
-                            .append(SU.tabs(getLevel(tag) - shift + 1))
+                            .append(formatted ? SU.tabs(getLevel(tag) - shift + 1) : "")
                             .append(text)
-                            .append('\n');
+                            .append(lineSeparator);
             }
             out
-                    .append(SU.tabs(getLevel(tag) - shift))
+                    .append(formatted ? SU.tabs(getLevel(tag) - shift) : "")
                     .append(tag)
-                    .append("\n");
+                    .append(lineSeparator);
             end = tag.end;
         }
 
@@ -241,7 +249,6 @@ public class HTMLTree implements Iterable<Tag> {
             ret.add(tag);
         return ret;
     }
-
 
     /**
      * Very simple implementation of XPath language interpreter.<br/>

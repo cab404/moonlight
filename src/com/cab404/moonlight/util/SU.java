@@ -449,7 +449,7 @@ public class SU {
     }
 
 
-    public static enum Gravity {
+    public enum Gravity {
         RIGHT, LEFT, CENTER
     }
 
@@ -533,9 +533,10 @@ public class SU {
         if (seq.length() == 0) return seq;
         int start = 0;
         int end = seq.length() - 1;
-        for (; start < seq.length(); start++) if (seq.charAt(start) != ' ') break;
-        for (; end >= start; end--) if (seq.charAt(end) != ' ') break;
-        return seq.subSequence(start, end);
+        for (; start < seq.length(); start++) if (!Character.isSpaceChar(seq.charAt(start))) break;
+        if (start == seq.length()) return "";
+        for (; end >= start; end--) if (!Character.isSpaceChar(seq.charAt(end))) break;
+        return seq.subSequence(start, end + 1);
     }
 
 }
