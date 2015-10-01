@@ -3,9 +3,7 @@ package com.cab404.moonlight.parser;
 import com.cab404.moonlight.util.SU;
 import com.cab404.moonlight.util.exceptions.NotFoundFail;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 /**
  * Simple html navigation class
@@ -199,8 +197,12 @@ public class HTMLTree implements Iterable<Tag> {
         StringBuilder out;
 
         // If we are performing on subtree, then skipping pre-tag data.
-        if (subtree)
-            out = new StringBuilder(get(0).start != 0 ? html.subSequence(0, get(0).start) + "\n" : "");
+        if (!subtree)
+            out = new StringBuilder(
+                    get(0).start > 0
+                            ? (html.subSequence(0, get(0).start) + "\n")
+                            : ""
+            );
         else
             out = new StringBuilder();
 
@@ -220,6 +222,9 @@ public class HTMLTree implements Iterable<Tag> {
                     .append("\n");
             end = tag.end;
         }
+
+        if (!subtree && get(size() - 1).end <= html.length())
+            out.append(html.subSequence(get(size() - 1).end, html.length()));
 
         return out.toString();
     }
@@ -300,6 +305,15 @@ public class HTMLTree implements Iterable<Tag> {
         }
 
         return results;
+    }
+
+    public Tag xPathUnique(String query) {
+        TagMatcher matcher = new TagMatcher(query);
+        for (Tag tag : this)
+            if (matcher.matches(tag))
+                return tag;
+        return null;
+
     }
 
     public String xPathStr(String str) {
