@@ -30,7 +30,7 @@ public class LevelAnalyzer {
 			if (opening == null) {
 				// IDK what to do here. We have no block, and that may be a pretty annoying and sneaky error.
 				// I'll just send a message.
-//				System.err.println("No opening tag found for tag " + tag.toString() + " with index " + tag.index + ", skipping.");
+				System.err.println("No opening tag found for tag " + tag.toString() + " with index " + tag.index + ", skipping.");
 				return;
 			}
 
@@ -149,23 +149,25 @@ public class LevelAnalyzer {
 	public LeveledTag findOpening(int index) {
 		LeveledTag end = tags.get(tags.size() - 1);
 		int c_level = 0;
+
 		for (int i = index; i >= 0; i--) {
 			LeveledTag curr = get(i);
-			if (curr.tag.name.equals(end.tag.name)) {
-				if (curr.tag.isOpening()) {
-					c_level++;
-					if (c_level == 0)
-						return curr;
-				}
-				if (curr.tag.isStandalone()) {
-					if (c_level == -1) {
-						curr.tag.type = Tag.Type.OPENING;
-						return curr;
-					}
-				}
 
-				if (curr.tag.isClosing())
-					c_level--;
+            if (curr.tag.name.equals(end.tag.name)) {
+
+                if (curr.tag.isOpening()) {
+                    c_level--;
+                    if (c_level == 0)
+                        return curr;
+                }
+
+                if (curr.tag.isStandalone() && c_level <= 0) {
+                    curr.tag.type = Tag.Type.OPENING;
+                    return curr;
+                }
+
+                if (curr.tag.isClosing())
+                    c_level++;
 
 			}
 		}
@@ -205,9 +207,9 @@ public class LevelAnalyzer {
 		StringBuilder builder = new StringBuilder();
 		for (LeveledTag tag : tags) {
 			builder
-					.append(SU.tabs(tag.level))
-					.append(tag.tag)
-					.append("\n");
+                    .append(SU.tabs(tag.level))
+                    .append(tag.tag)
+                    .append("\n");
 		}
 		return builder.toString();
 	}
