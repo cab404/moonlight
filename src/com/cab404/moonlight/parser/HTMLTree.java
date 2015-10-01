@@ -149,8 +149,8 @@ public class HTMLTree implements Iterable<Tag> {
      */
     public HTMLTree getTree(Tag opening) {
 
-        if (opening.isClosing()) throw new NotFoundFail("Попытка достать парсер для закрывающего тега!");
-        if (opening.isStandalone()) throw new NotFoundFail("Попытка достать парсер для standalone-тега!");
+        if (opening.isClosing()) throw new NotFoundFail("You can't get subtree for closing tag.");
+        if (opening.isStandalone()) throw new NotFoundFail("You can't get subtree for closing tag.");
 
         return new HTMLTree(this, opening.index - offset(), getClosingTag(opening) + 1);
     }
@@ -163,8 +163,8 @@ public class HTMLTree implements Iterable<Tag> {
     }
 
     public List<Tag> getTopChildren(Tag tag) {
-        if (tag.isClosing()) throw new NotFoundFail("Попытка достать теги верхнего уровня для закрывающего тега!");
-        if (tag.isStandalone()) throw new NotFoundFail("Попытка достать теги верхнего уровня для standalone-тега!");
+        if (tag.isClosing()) throw new NotFoundFail("You can't get children of closing tag.");
+        if (tag.isStandalone()) throw new NotFoundFail("You can't get children of standalone tag.");
 
 
         ArrayList<Tag> _return = new ArrayList<>();
