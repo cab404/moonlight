@@ -199,8 +199,12 @@ public class HTMLTree implements Iterable<Tag> {
         StringBuilder out;
 
         // If we are performing on subtree, then skipping pre-tag data.
-        if (subtree)
-            out = new StringBuilder(get(0).start != 0 ? html.subSequence(0, get(0).start) + "\n" : "");
+        if (!subtree)
+            out = new StringBuilder(
+                    get(0).start > 0
+                            ? (html.subSequence(0, get(0).start) + "\n")
+                            : ""
+            );
         else
             out = new StringBuilder();
 
@@ -220,6 +224,9 @@ public class HTMLTree implements Iterable<Tag> {
                     .append("\n");
             end = tag.end;
         }
+
+        if (!subtree && get(size() - 1).end <= html.length())
+            out.append(html.subSequence(get(size() - 1).end, html.length()));
 
         return out.toString();
     }
