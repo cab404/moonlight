@@ -26,7 +26,7 @@ public class TagMatcher {
 
     }
 
-    boolean matches(Tag tag) {
+    public boolean matches(Tag tag) {
         if (name.length() > 0)
             if (!SU.fast_match(name, tag.name))
                 return false;
