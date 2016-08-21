@@ -251,9 +251,10 @@ public class HTMLTree implements Iterable<Tag> {
     }
 
     /**
-     * Very simple implementation of XPath language interpreter.<br/>
+     * Sort-of-xpath.<br/>
      * It's using {@link com.cab404.moonlight.util.SU#fast_match(String, String) SU.fast_match()} for matching request parts.<br/>
-     * Example of path: <br/> <code>div/a&href=*somesite.com/span</code>
+     * Scheme of path segment: <code>[tag name regex]&[key]=[value regex]&=[index]</code>
+     * Example of path: <br/> <code>div/a&href=*somesite.com/span&=3</code>
      */
     public List<Tag> xPath(String path) {
 
@@ -288,14 +289,32 @@ public class HTMLTree implements Iterable<Tag> {
                 String p_name = property.get(0);
                 String p_val = property.get(1);
 
-                for (int i = 0; i < results.size(); ) {
-                    Tag proc = results.get(i);
+                System.out.println("traversing " + quiz);
 
-                    if (!(proc.props.containsKey(p_name) && SU.fast_match(p_val, proc.get(p_name)))) {
-                        results.remove(i);
-                        continue;
+                int indexEnforcment = -1;
+                if (p_name.length() == 0){
+                    try {
+                        indexEnforcment = Integer.parseInt(p_val);
+                    } catch (NumberFormatException e){
+                        System.err.println(path + " contains malformed index node - " + p_val);
                     }
+                }
 
+                int realIndex = 0;
+                for (int i = 0; i < results.size(); realIndex++) {
+                    Tag proc = results.get(i);
+                    if (indexEnforcment != -1 ){
+                        if (realIndex != indexEnforcment) {
+                            System.out.println("removing index " + realIndex + ", ri " + i);
+                            results.remove(i);
+                            continue;
+                        }
+                    } else {
+                        if (!(proc.props.containsKey(p_name) && SU.fast_match(p_val, proc.get(p_name)))) {
+                            results.remove(i);
+                            continue;
+                        }
+                    }
                     i++;
                 }
 
