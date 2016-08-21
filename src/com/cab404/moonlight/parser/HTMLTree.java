@@ -289,14 +289,12 @@ public class HTMLTree implements Iterable<Tag> {
                 String p_name = property.get(0);
                 String p_val = property.get(1);
 
-                System.out.println("traversing " + quiz);
-
                 int indexEnforcment = -1;
                 if (p_name.length() == 0){
                     try {
                         indexEnforcment = Integer.parseInt(p_val);
                     } catch (NumberFormatException e){
-                        System.err.println(path + " contains malformed index node - " + p_val);
+                        throw new RuntimeException(path + " contains malformed index node - " + p_val);
                     }
                 }
 
@@ -305,7 +303,6 @@ public class HTMLTree implements Iterable<Tag> {
                     Tag proc = results.get(i);
                     if (indexEnforcment != -1 ){
                         if (realIndex != indexEnforcment) {
-                            System.out.println("removing index " + realIndex + ", ri " + i);
                             results.remove(i);
                             continue;
                         }
