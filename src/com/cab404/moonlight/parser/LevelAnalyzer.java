@@ -255,7 +255,7 @@ public class LevelAnalyzer {
 			fixIndents(header.index, footer.index + 1);
 			List<LeveledTag> slice = getSlice(header.index, footer.index + 1);
 
-			built = built == null ? new HTMLTree(slice, linked) : built;
+			built = built == null ? new HTMLTree(slice, linked, true) : built;
 			return built;
 		}
 

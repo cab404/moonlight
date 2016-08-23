@@ -10,8 +10,7 @@ import com.cab404.moonlight.parser.Tag;
  * @author cab404
  */
 public interface Module<T> {
-    public abstract T extractData(HTMLTree page, AccessProfile profile);
-    public abstract boolean doYouLikeIt(Tag tag);
-    public abstract boolean haveYouFinished();
-
+    T extractData(HTMLTree page, AccessProfile profile);
+    boolean doYouLikeIt(Tag tag);
+    boolean haveYouFinished();
 }

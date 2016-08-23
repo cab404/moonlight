@@ -78,12 +78,13 @@ public class HTMLTree implements Iterable<Tag> {
     }
 
     public HTMLTree(LevelAnalyzer analyzed, CharSequence data) {
-        this(analyzed.getSlice(0, analyzed.size()), data);
+        this(analyzed.getSlice(0, analyzed.size()), data, false);
     }
 
-    public HTMLTree(List<LevelAnalyzer.LeveledTag> analyzed, CharSequence data) {
+    public HTMLTree(List<LevelAnalyzer.LeveledTag> analyzed, CharSequence data, boolean isSubtree) {
         html = data;
         leveled = analyzed;
+        subtree = isSubtree;
     }
 
     public HTMLTree(String text) {

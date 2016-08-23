@@ -68,7 +68,6 @@ public class TagParser {
 		buffer.append(chunk);
 		full_data.append(chunk);
 
-		// Deleting all comments as they come. Nopony needs them. Useless.
 		int comment_start;
 
 		while ((comment_start = buffer.indexOf(COMM_START)) != -1) {
