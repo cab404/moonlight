@@ -4,11 +4,11 @@ Moonlight
 
 Just a little easy-to-use framework for writing interaction libraries, e.g for Android clients.
 
-###Usage
+### Usage
 Works like this: you add some modules using `Module`, bind modules in `Page`-s to keys, add some requests for dealing with js and your brand new lib pretty much done! 
 (Perfect for site developers, who have no time dealing with APIs, or just lazy)
 
-###How does it works?
+### How does it works?
 After you call `fetch` from your page, it will run throught `bindParsers` and then start new loading thread (still, `fetch` invokation is blocking, but if anyone 
 needs I can add nonblocking variant).
 
@@ -22,7 +22,7 @@ accidently found some other js code), just return null - it won't reach handlers
 
 And what's next? Just wait your objects in `handle` method in your page, and do whatever you want to do with them!
 
-###Example
+### Example
 So, let's try fetching LIVESTREET_SECURITY_KEY.
 First of all, we will need module to parse it:
 
@@ -90,9 +90,6 @@ public static void main(String... args){
 
 `AccessProfile` will store cookies and host address, and you can actually serialize it with `serialize()` and then restore with `AccessProfile.parseString()`.
 
-###Used in
-This project was forked from my [libtabun](https://github.com/cab404/libtabun), as I found it pretty useful in many cases.
-
-###Help
-You can send me [email](mailto:me@cab404.ru), or chat with me in Jabber (me@cab404.ru).
+### Used in
+This project was forked from my [libtabun](https://github.com/cab404/libtabun), as I found it pretty useful in many cases. So it is used in several phone apps and bots.
 
