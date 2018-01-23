@@ -1,7 +1,6 @@
 package com.cab404.moonlight.framework;
 
 import com.cab404.moonlight.facility.ResponseFactory;
-import com.cab404.moonlight.util.RU;
 import com.cab404.moonlight.util.exceptions.LoadingFail;
 import com.cab404.moonlight.util.exceptions.RequestFail;
 import org.apache.http.HttpResponse;
@@ -74,7 +73,14 @@ public abstract class Request implements ResponseFactory.Parser {
 				if (response.getStatusLine().getStatusCode() == HttpURLConnection.HTTP_MOVED_PERM) {
 					onRedirect(response.getFirstHeader("Location").getValue());
 					if (isCancelled()) return;
-					request.setURI(URI.create(response.getFirstHeader("Location").getValue()));
+					URI uri = URI.create(response.getFirstHeader("Location").getValue());
+					if(uri.getScheme() == null) {
+						uri = new URI(profile.getHost().getSchemeName(),
+								uri.getHost(),
+								uri.getPath(),
+								uri.getFragment());
+					}
+					request.setURI(uri);
 				} else break;
 
 			} while (true);
